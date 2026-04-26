@@ -1,6 +1,7 @@
 ---
 name: ymos-strategy
-depends_on: [ymos-core]
+metadata:
+  depends_on: [ymos-core]
 description: |
   投资策略分析与路由分发。触发方式：/ymos-strategy、「我想买/卖/加仓/持有怎么看 [ticker]」「做个仓位再平衡」「跑一下策略分析」
 ---

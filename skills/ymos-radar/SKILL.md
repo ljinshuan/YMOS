@@ -1,6 +1,7 @@
 ---
 name: ymos-radar
-depends_on: [ymos-core]
+metadata:
+  depends_on: [ymos-core]
 description: |
   持仓与关注标的的价格扫描、信号追踪与桥接报告。触发方式：/ymos-radar、「跑一下投资雷达」「查一下价格」「看看有什么信号」
 ---

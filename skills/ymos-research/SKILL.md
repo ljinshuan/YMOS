@@ -1,6 +1,7 @@
 ---
 name: ymos-research
-depends_on: [ymos-core]
+metadata:
+  depends_on: [ymos-core]
 description: |
   个股深度调研（P1+P4+P2）。触发方式：/ymos-research、「调研一下 [ticker]」
   可被 ymos-strategy、ymos-target-mgmt、ymos-onboarding 组合引用。

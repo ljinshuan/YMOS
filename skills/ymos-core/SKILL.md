@@ -2,7 +2,7 @@
 name: ymos-core
 description: |
   YMOS 基础设施 skill，收纳跨 skill 共享的 prompts、templates、路由表和工作流。
-  其他 skill 通过 depends_on: [ymos-core] 声明依赖。
+  其他 skill 通过 frontmatter 的 `metadata.depends_on: [ymos-core]` 声明依赖。
 ---
 
 # ymos-core：共享基础设施
@@ -27,7 +27,8 @@ description: |
 
 其他 skill 的 SKILL.md frontmatter 中添加：
 ```yaml
-depends_on: [ymos-core]
+metadata:
+  depends_on: [ymos-core]
 ```
 
 引用路径格式：

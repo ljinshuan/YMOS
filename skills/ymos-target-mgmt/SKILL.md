@@ -1,6 +1,7 @@
 ---
 name: ymos-target-mgmt
-depends_on: [ymos-core]
+metadata:
+  depends_on: [ymos-core]
 description: |
   标的状态管理（关注/建仓/移除/清仓）。触发方式：/ymos-target-mgmt、「关注/建仓/移除关注/清仓 [ticker]」
 ---
