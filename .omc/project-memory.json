@@ -80,14 +80,26 @@
   "hotPaths": [
     {
       "path": "",
-      "accessCount": 28,
-      "lastAccessed": 1777184237278,
+      "accessCount": 48,
+      "lastAccessed": 1777218123740,
       "type": "directory"
+    },
+    {
+      "path": "AGENT_GUIDE.md",
+      "accessCount": 46,
+      "lastAccessed": 1777218013509,
+      "type": "file"
     },
     {
       "path": "持仓与关注/持仓_状态机.md",
       "accessCount": 24,
       "lastAccessed": 1777177729561,
+      "type": "file"
+    },
+    {
+      "path": "总入口暗号.md",
+      "accessCount": 19,
+      "lastAccessed": 1777218026504,
       "type": "file"
     },
     {
@@ -97,39 +109,39 @@
       "type": "file"
     },
     {
+      "path": "README.md",
+      "accessCount": 13,
+      "lastAccessed": 1777218099983,
+      "type": "file"
+    },
+    {
       "path": "持仓与关注/持仓/Credo Technology_CRDO/个股基础知识库.md",
       "accessCount": 12,
       "lastAccessed": 1777165715548,
       "type": "file"
     },
     {
-      "path": "README.md",
+      "path": "Brain/SOP_策略分析.md",
       "accessCount": 11,
-      "lastAccessed": 1777183955327,
+      "lastAccessed": 1777212406751,
       "type": "file"
     },
     {
-      "path": "Brain/SOP_策略分析.md",
-      "accessCount": 10,
-      "lastAccessed": 1777183913078,
+      "path": "CLAUDE.md",
+      "accessCount": 11,
+      "lastAccessed": 1777217970318,
+      "type": "file"
+    },
+    {
+      "path": "pyproject.toml",
+      "accessCount": 9,
+      "lastAccessed": 1777215520054,
       "type": "file"
     },
     {
       "path": "持仓与关注/持仓/阿里巴巴_BABA/个股基础知识库.md",
       "accessCount": 8,
       "lastAccessed": 1777165317316,
-      "type": "file"
-    },
-    {
-      "path": "总入口暗号.md",
-      "accessCount": 8,
-      "lastAccessed": 1777177664410,
-      "type": "file"
-    },
-    {
-      "path": "AGENT_GUIDE.md",
-      "accessCount": 8,
-      "lastAccessed": 1777184934640,
       "type": "file"
     },
     {
@@ -151,9 +163,33 @@
       "type": "file"
     },
     {
+      "path": "持仓与关注/SOP_入职引导.md",
+      "accessCount": 6,
+      "lastAccessed": 1777212408008,
+      "type": "file"
+    },
+    {
       "path": "openspec/changes/individual-stock-flow-enhancement/tasks.md",
       "accessCount": 5,
       "lastAccessed": 1777162600537,
+      "type": "file"
+    },
+    {
+      "path": "Eyes/SOP_市场洞察.md",
+      "accessCount": 5,
+      "lastAccessed": 1777212406059,
+      "type": "file"
+    },
+    {
+      "path": "Brain/SOP_初始调研.md",
+      "accessCount": 5,
+      "lastAccessed": 1777212407297,
+      "type": "file"
+    },
+    {
+      "path": "持仓与关注/SOP_标的管理.md",
+      "accessCount": 5,
+      "lastAccessed": 1777212408544,
       "type": "file"
     },
     {
@@ -163,33 +199,15 @@
       "type": "file"
     },
     {
-      "path": "持仓与关注/SOP_标的管理.md",
+      "path": "Eyes/SOP_投资雷达.md",
       "accessCount": 4,
-      "lastAccessed": 1777177400696,
+      "lastAccessed": 1777212406439,
       "type": "file"
     },
     {
-      "path": "Brain/SOP_初始调研.md",
+      "path": "Eyes/scripts/fetch_price_router.py",
       "accessCount": 4,
-      "lastAccessed": 1777177400747,
-      "type": "file"
-    },
-    {
-      "path": "Eyes/SOP_市场洞察.md",
-      "accessCount": 4,
-      "lastAccessed": 1777177664307,
-      "type": "file"
-    },
-    {
-      "path": "持仓与关注/SOP_入职引导.md",
-      "accessCount": 4,
-      "lastAccessed": 1777183722532,
-      "type": "file"
-    },
-    {
-      "path": "pyproject.toml",
-      "accessCount": 3,
-      "lastAccessed": 1777162176871,
+      "lastAccessed": 1777214228647,
       "type": "file"
     },
     {
@@ -211,9 +229,21 @@
       "type": "file"
     },
     {
-      "path": "Eyes/SOP_投资雷达.md",
+      "path": "main.py",
       "accessCount": 3,
-      "lastAccessed": 1777177664198,
+      "lastAccessed": 1777212420735,
+      "type": "file"
+    },
+    {
+      "path": "Eyes/scripts/env_loader.py",
+      "accessCount": 3,
+      "lastAccessed": 1777214225996,
+      "type": "file"
+    },
+    {
+      "path": "Eyes/scripts/runtime_paths.py",
+      "accessCount": 3,
+      "lastAccessed": 1777214231902,
       "type": "file"
     },
     {
@@ -232,12 +262,6 @@
       "path": "Brain/references/p17-position-sizing.md",
       "accessCount": 2,
       "lastAccessed": 1777165211992,
-      "type": "file"
-    },
-    {
-      "path": "main.py",
-      "accessCount": 2,
-      "lastAccessed": 1777184934532,
       "type": "file"
     },
     {
@@ -301,24 +325,6 @@
       "type": "file"
     },
     {
-      "path": "Eyes/scripts/env_loader.py",
-      "accessCount": 1,
-      "lastAccessed": 1777162185181,
-      "type": "file"
-    },
-    {
-      "path": "Eyes/scripts/fetch_price_router.py",
-      "accessCount": 1,
-      "lastAccessed": 1777162185518,
-      "type": "file"
-    },
-    {
-      "path": "Eyes/scripts/runtime_paths.py",
-      "accessCount": 1,
-      "lastAccessed": 1777162185959,
-      "type": "file"
-    },
-    {
       "path": ".python-version",
       "accessCount": 1,
       "lastAccessed": 1777162187107,
@@ -328,12 +334,6 @@
       "path": ".env.example",
       "accessCount": 1,
       "lastAccessed": 1777162187159,
-      "type": "file"
-    },
-    {
-      "path": "CLAUDE.md",
-      "accessCount": 1,
-      "lastAccessed": 1777162295812,
       "type": "file"
     },
     {
