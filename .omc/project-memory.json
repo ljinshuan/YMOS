@@ -79,15 +79,21 @@
   },
   "hotPaths": [
     {
+      "path": "",
+      "accessCount": 28,
+      "lastAccessed": 1777184237278,
+      "type": "directory"
+    },
+    {
       "path": "持仓与关注/持仓_状态机.md",
-      "accessCount": 22,
-      "lastAccessed": 1777165663552,
+      "accessCount": 24,
+      "lastAccessed": 1777177729561,
       "type": "file"
     },
     {
       "path": "持仓与关注/当前关注方向与投资偏好.md",
-      "accessCount": 13,
-      "lastAccessed": 1777165104587,
+      "accessCount": 14,
+      "lastAccessed": 1777176976261,
       "type": "file"
     },
     {
@@ -98,15 +104,15 @@
     },
     {
       "path": "README.md",
-      "accessCount": 10,
-      "lastAccessed": 1777162560218,
+      "accessCount": 11,
+      "lastAccessed": 1777183955327,
       "type": "file"
     },
     {
-      "path": "",
-      "accessCount": 9,
-      "lastAccessed": 1777165308735,
-      "type": "directory"
+      "path": "Brain/SOP_策略分析.md",
+      "accessCount": 10,
+      "lastAccessed": 1777183913078,
+      "type": "file"
     },
     {
       "path": "持仓与关注/持仓/阿里巴巴_BABA/个股基础知识库.md",
@@ -115,9 +121,21 @@
       "type": "file"
     },
     {
-      "path": "Brain/SOP_策略分析.md",
-      "accessCount": 6,
-      "lastAccessed": 1777162468447,
+      "path": "总入口暗号.md",
+      "accessCount": 8,
+      "lastAccessed": 1777177664410,
+      "type": "file"
+    },
+    {
+      "path": "AGENT_GUIDE.md",
+      "accessCount": 8,
+      "lastAccessed": 1777184934640,
+      "type": "file"
+    },
+    {
+      "path": "持仓与关注/Watchlist_状态机.md",
+      "accessCount": 7,
+      "lastAccessed": 1777177729746,
       "type": "file"
     },
     {
@@ -133,27 +151,9 @@
       "type": "file"
     },
     {
-      "path": "持仓与关注/Watchlist_状态机.md",
-      "accessCount": 6,
-      "lastAccessed": 1777166079906,
-      "type": "file"
-    },
-    {
-      "path": "AGENT_GUIDE.md",
-      "accessCount": 5,
-      "lastAccessed": 1777162588172,
-      "type": "file"
-    },
-    {
       "path": "openspec/changes/individual-stock-flow-enhancement/tasks.md",
       "accessCount": 5,
       "lastAccessed": 1777162600537,
-      "type": "file"
-    },
-    {
-      "path": "总入口暗号.md",
-      "accessCount": 4,
-      "lastAccessed": 1777164469036,
       "type": "file"
     },
     {
@@ -163,27 +163,39 @@
       "type": "file"
     },
     {
+      "path": "持仓与关注/SOP_标的管理.md",
+      "accessCount": 4,
+      "lastAccessed": 1777177400696,
+      "type": "file"
+    },
+    {
+      "path": "Brain/SOP_初始调研.md",
+      "accessCount": 4,
+      "lastAccessed": 1777177400747,
+      "type": "file"
+    },
+    {
+      "path": "Eyes/SOP_市场洞察.md",
+      "accessCount": 4,
+      "lastAccessed": 1777177664307,
+      "type": "file"
+    },
+    {
+      "path": "持仓与关注/SOP_入职引导.md",
+      "accessCount": 4,
+      "lastAccessed": 1777183722532,
+      "type": "file"
+    },
+    {
       "path": "pyproject.toml",
       "accessCount": 3,
       "lastAccessed": 1777162176871,
       "type": "file"
     },
     {
-      "path": "持仓与关注/SOP_入职引导.md",
-      "accessCount": 3,
-      "lastAccessed": 1777162698295,
-      "type": "file"
-    },
-    {
       "path": "持仓与关注/_模板_单标的/个股基础知识库.md",
       "accessCount": 3,
       "lastAccessed": 1777164019811,
-      "type": "file"
-    },
-    {
-      "path": "Brain/SOP_初始调研.md",
-      "accessCount": 3,
-      "lastAccessed": 1777164827458,
       "type": "file"
     },
     {
@@ -196,6 +208,12 @@
       "path": "Eyes/市场洞察/2026-04/2026-04-26_市场洞察.md",
       "accessCount": 3,
       "lastAccessed": 1777166166188,
+      "type": "file"
+    },
+    {
+      "path": "Eyes/SOP_投资雷达.md",
+      "accessCount": 3,
+      "lastAccessed": 1777177664198,
       "type": "file"
     },
     {
@@ -217,9 +235,9 @@
       "type": "file"
     },
     {
-      "path": "持仓与关注/SOP_标的管理.md",
+      "path": "main.py",
       "accessCount": 2,
-      "lastAccessed": 1777165884562,
+      "lastAccessed": 1777184934532,
       "type": "file"
     },
     {
@@ -283,12 +301,6 @@
       "type": "file"
     },
     {
-      "path": "main.py",
-      "accessCount": 1,
-      "lastAccessed": 1777162177155,
-      "type": "file"
-    },
-    {
       "path": "Eyes/scripts/env_loader.py",
       "accessCount": 1,
       "lastAccessed": 1777162185181,
@@ -343,12 +355,6 @@
       "type": "file"
     },
     {
-      "path": "Eyes/SOP_市场洞察.md",
-      "accessCount": 1,
-      "lastAccessed": 1777164173717,
-      "type": "file"
-    },
-    {
       "path": "Brain/references/cio-rss-processor.md",
       "accessCount": 1,
       "lastAccessed": 1777164235902,
@@ -370,12 +376,6 @@
       "path": "Eyes/市场洞察/Raw_Data/2026-04/finnhub_news_20260426.json",
       "accessCount": 1,
       "lastAccessed": 1777164264328,
-      "type": "file"
-    },
-    {
-      "path": "Eyes/SOP_投资雷达.md",
-      "accessCount": 1,
-      "lastAccessed": 1777164475036,
       "type": "file"
     }
   ],
