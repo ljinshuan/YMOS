@@ -4,43 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What Is YMOS
 
-YMOS (勇麦投资操作系统) is a natural-language-driven human-AI collaborative investment research system. The core is NOT code — it's **Markdown SOP documents + P-series prompts** that structure investment thinking. Python scripts are lightweight data fetchers only.
+YMOS (勇麦投资操作系统) is a natural-language-driven human-AI collaborative investment research system. The core is NOT code — it's **Markdown SOP documents + P-series prompts** that structure investment thinking. Python CLI tools are lightweight data fetchers only.
 
-## Architecture: Three Modules
+## Architecture: Three Layers
 
 ```
-Eyes/ (看市场) → Brain/ (做分析) → 持仓与关注/ (管状态)
+skills/ (能力层) → data/ (数据层) → cli/ (工具层)
 ```
 
-- **Eyes/** — Market monitoring: RSS fetching, price scanning, market reports. Scripts in `Eyes/scripts/` are standalone atomic data fetchers
-- **Brain/** — Analysis engine: strategy routing, initial research, P1-P16 prompts in `Brain/references/`, diagnosis module in `Brain/ymos-diagnosis/`
-- **持仓与关注/** — State layer: state machines (`持仓_状态机.md`, `Watchlist_状态机.md`), individual stock folders, investment preferences
+- **skills/** — 9 个 YMOS 能力（含 ymos-core 共享基础设施），每个 skill 自包含 SOP、prompts、knowledge。Agent 发现和执行的入口
+- **data/** — 运行时数据（状态机 + 个股文件夹 + 报告），.gitignore 忽略
+- **cli/** — 统一 CLI 工具（`ymos` 命令），数据抓取 + 文件操作
 
-Information flows one direction: Eyes sees → Brain analyzes → 持仓与关注 stores conclusions.
+Information flows: skills trigger workflows → data stores state → cli fetches data. Skills depend on ymos-core for shared resources (prompts, templates, routing).
 
 ## Running Scripts
 
-Python 3.12, zero third-party dependencies. Scripts use `env_loader.py` to auto-load `.env`.
+Python 3.12+ with typer+rich. `ymos` CLI auto-loads `.env`.
 
 ```bash
-# Price scan (most common operation)
-python Eyes/scripts/fetch_price_router.py --symbols AAPL,NIO,688008.SS,0700.HK --output-dir Eyes/投资雷达/Raw_Data --date-tag 20260426
+# Price scan
+ymos price-scan --symbols AAPL,NIO,688008.SS,0700.HK --output-dir data/reports/radar/raw --date-tag 20260426
+
+# Price scan from state
+ymos price-scan --from-state
 
 # RSS fetch
-python Eyes/scripts/fetch_rss.py
+ymos fetch-rss --days 1
 
-# Individual price sources (rarely called directly, router dispatches)
-python Eyes/scripts/fetch_price_api.py --symbols AAPL --output out.json --token $FINNHUB_API_KEY
-python Eyes/scripts/fetch_price_tushare.py --symbols 688008.SS --token $TUSHARE_TOKEN --output out.json
-python Eyes/scripts/fetch_price_yahoo.py --symbols 0700.HK --output out.json
+# State operations
+ymos state read holdings
+ymos state update holdings --ticker AAPL --field P4 --value "测试中"
+ymos state validate
 ```
 
 ## Key Rules for Editing
 
 ### File Permissions
-- **Read-only**: All SOP files (`SOP_*.md`), P-series prompts (`Brain/references/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`
-- **Human-in-the-Loop**: `持仓与关注/当前关注方向与投资偏好.md` — draft changes but require user confirmation before writing
-- **Writable via SOP only**: Reports in `Eyes/市场洞察/`, `Eyes/投资雷达/`, `Brain/策略分析/`, state machines, stock knowledge bases
+- **Read-only**: All SOP files (`skills/*/sop.md`), P-series prompts (`skills/*/prompts/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`, `skills/ymos-diagnosis/**`
+- **Human-in-the-Loop**: `data/state/preferences.md` — draft changes but require user confirmation before writing
+- **Writable via SOP only**: Reports in `data/reports/market-insight/`, `data/reports/radar/`, `data/reports/strategy/`, state machines, stock knowledge bases
 
 ### Report Naming
 - Same-day reports overwrite (no `_v2`/`_v3` suffixes)
@@ -58,6 +61,33 @@ Every state machine write must: (1) update `更新时间`, (2) update the target
 - Read the entire individual stock folder as context when analyzing a ticker
 - Market insight → Investment Radar → Strategy Analysis → Position Close — strict ordering, each depends on previous output
 
+## Skill Discovery
+
+9 skills in `skills/` directory:
+
+| Skill | Trigger Words | Depends On |
+|-------|--------------|------------|
+| ymos-core | (shared infrastructure, not user-facing) | — |
+| ymos-onboarding | `开始使用`、`初始化系统`、`补全信息` | — |
+| ymos-market-insight | `跑一下市场洞察`、`今天有什么新闻` | — |
+| ymos-radar | `跑一下投资雷达`、`查一下价格` | ymos-core |
+| ymos-strategy | `我想买/卖/加仓/持有怎么看 [ticker]` | ymos-core |
+| ymos-research | `调研一下 [ticker]` | ymos-core |
+| ymos-target-mgmt | `关注/建仓/移除/清仓 [ticker]` | ymos-core |
+| ymos-reconcile | `收口一下`、`刷新持仓视图` | — |
+| ymos-diagnosis | `诊断一下我的策略`、`帮我看看我的投资` | — |
+
+## Data Layer
+
+Runtime data lives in `data/` (ignored by git):
+- `data/state/` — Holdings/watchlist/preferences state machines
+- `data/stocks/` — Individual stock folders (holdings + watchlist)
+- `data/reports/` — Generated reports (market-insight, radar, strategy)
+- `data/dashboard/` — Visual dashboards
+
+Use `ymos migrate` to migrate from old directory structure.
+Use `ymos init dirs` to create the directory structure.
+
 ## Environment Variables (.env)
 
 All optional. Missing keys trigger automatic fallback to free sources.
@@ -70,16 +100,18 @@ All optional. Missing keys trigger automatic fallback to free sources.
 
 ## Price Router Logic
 
-`fetch_price_router.py` dispatches by ticker suffix:
+`cli/core/router.py` dispatches by ticker suffix:
 - `.SS`/`.SZ` → Tushare (or Yahoo fallback)
 - `.HK` → Yahoo (fixed)
 - No suffix / Crypto → Finnhub (or Yahoo fallback)
+
+Run: `ymos price-scan --symbols TICKER1,TICKER2`
 
 Crypto symbols (BTC, ETH, etc.) stored as bare symbols in state machines; router normalizes to source-specific format (e.g., `BINANCE:BTCUSDT` for Finnhub, `BTC-USD` for Yahoo).
 
 ## Onboarding Flow
 
-New users say "开始使用" → Agent reads `持仓与关注/SOP_入职引导.md` → guided interview (investment preferences → holdings → watchlist → first run).
+New users say "开始使用" → Agent reads `skills/ymos-onboarding/SKILL.md` → guided interview (investment preferences → holdings → watchlist → first run).
 
 ## Agent Entry Point
 
