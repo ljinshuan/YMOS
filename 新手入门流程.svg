@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1111.775 1016.0999999999999" width="1111.775" height="1016.0999999999999" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="493.925,76 493.925,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="493.925,152 493.925,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="493.925,228 493.925,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="493.925,304 493.925,344" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="493.925,380 493.925,420" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="493.925,456 493.925,495.99999999999994" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="450.49165376517215,558.6166537651721 450.49165376517215,622.05 163.25000000000003,622.05 163.25000000000003,677.0749999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="163.25000000000003,713.0749999999999 163.25000000000003,788.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="163.25000000000003,824.0999999999999 163.25000000000003,864.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="163.25000000000003,900.0999999999999 163.25000000000003,940.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="534.5843439383658,561.3906560616342 534.5843439383658,622.05 734.0375000000001,622.05 734.0375000000001,642.05" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="691.0022465252025,705.0647465252023 691.0022465252025,768.0999999999999 419.4500000000001,768.0999999999999 419.4500000000001,788.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="704.6827108963095,718.7452108963092 704.6827108963095,768.0999999999999 643.4750000000001,768.0999999999999 643.4750000000001,788.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="763.3922891036908,718.7452108963092 763.3922891036908,768.0999999999999 824.6000000000001,768.0999999999999 824.6000000000001,788.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="775.5915853545641,706.5459146454359 775.5915853545641,768.0999999999999 998.575,768.0999999999999 998.575,788.0999999999999" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<rect x="435.025" y="40" width="117.80000000000001" height="36" rx="18" ry="18" fill="#7aa2f7" stroke="#3b4261" stroke-width="0.75" />
+<rect x="384.975" y="116" width="217.9" height="36" rx="0" ry="0" fill="#bb9af7" stroke="#3b4261" stroke-width="0.75" />
+<rect x="374.25" y="192" width="239.35000000000002" height="36" rx="0" ry="0" fill="#7dcfff" stroke="#3b4261" stroke-width="0.75" />
+<rect x="420.725" y="268" width="146.4" height="36" rx="0" ry="0" fill="#7dcfff" stroke="#3b4261" stroke-width="0.75" />
+<rect x="399.275" y="344" width="189.3" height="36" rx="0" ry="0" fill="#7dcfff" stroke="#3b4261" stroke-width="0.75" />
+<rect x="420.725" y="420" width="146.4" height="36" rx="0" ry="0" fill="#9ece6a" stroke="#3b4261" stroke-width="0.75" />
+<polygon points="493.92499999999995,496 546.9499999999999,549.025 493.92499999999995,602.05 440.9,549.025" fill="#e0af68" stroke="#3b4261" stroke-width="0.75" />
+<rect x="40.000000000000014" y="677.0749999999999" width="246.50000000000003" height="36" rx="0" ry="0" fill="#2ac3de" stroke="#3b4261" stroke-width="0.75" />
+<rect x="50.72500000000002" y="788.0999999999999" width="225.05" height="36" rx="0" ry="0" fill="#2ac3de" stroke="#3b4261" stroke-width="0.75" />
+<rect x="61.45000000000002" y="864.0999999999999" width="203.60000000000002" height="36" rx="0" ry="0" fill="#f7768e" stroke="#3b4261" stroke-width="0.75" />
+<rect x="79.32500000000002" y="940.0999999999999" width="167.85000000000002" height="36" rx="0" ry="0" fill="#9ece6a" stroke="#3b4261" stroke-width="0.75" />
+<polygon points="734.0375000000001,642.05 787.0625000000001,695.0749999999999 734.0375000000001,748.0999999999999 681.0125000000002,695.0749999999999" fill="#e0af68" stroke="#3b4261" stroke-width="0.75" />
+<rect x="299.7750000000001" y="788.0999999999999" width="239.35000000000002" height="36" rx="0" ry="0" fill="#bb9af7" stroke="#3b4261" stroke-width="0.75" />
+<rect x="563.1250000000001" y="788.0999999999999" width="160.70000000000002" height="36" rx="0" ry="0" fill="#bb9af7" stroke="#3b4261" stroke-width="0.75" />
+<rect x="747.8250000000002" y="788.0999999999999" width="153.55" height="36" rx="0" ry="0" fill="#bb9af7" stroke="#3b4261" stroke-width="0.75" />
+<rect x="925.375" y="788.0999999999999" width="146.4" height="36" rx="0" ry="0" fill="#bb9af7" stroke="#3b4261" stroke-width="0.75" />
+<text x="493.92499999999995" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">🚀 开始使用 YMOS</text>
+<text x="493.925" y="134" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">Step 0: 说「开始使用」&lt;br&gt;AI 引导入职</text>
+<text x="493.925" y="210" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">填写投资偏好&lt;br&gt;9 个维度访谈&lt;br&gt;写入投资偏好文件</text>
+<text x="493.925" y="286" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">添加持仓&lt;br&gt;初始化持仓状态机</text>
+<text x="493.92499999999995" y="362" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">添加 Watchlist&lt;br&gt;建立关注标的</text>
+<text x="493.925" y="438" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">引导跑第一轮&lt;br&gt;体验完整闭环</text>
+<text x="493.92499999999995" y="549.025" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">📅 每日运行</text>
+<text x="163.25000000000003" y="695.0749999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">跑一下市场洞察&lt;br&gt;RSS + P13 分析 → 市场日报</text>
+<text x="163.25000000000003" y="806.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">跑一下投资雷达&lt;br&gt;价格扫描 + 趋势 → 桥接报告</text>
+<text x="163.25000000000003" y="882.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">跑一下策略分析&lt;br&gt;读取雷达建议 → 策略路由</text>
+<text x="163.25000000000003" y="958.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">收口一下&lt;br&gt;校验 + 刷新持仓视图</text>
+<text x="734.0375000000001" y="695.0749999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">🎯 按需触发</text>
+<text x="419.4500000000001" y="806.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">调研一下 TSLA&lt;br&gt;P1+P4+P2+P9 深度调研</text>
+<text x="643.4750000000001" y="806.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">我想买 TSLA&lt;br&gt;买入策略路由</text>
+<text x="824.6000000000001" y="806.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">持有怎么看 NIO&lt;br&gt;持有评估</text>
+<text x="998.575" y="806.0999999999999" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#1a1b26">关注/建仓/清仓&lt;br&gt;标的管理</text>
+</svg>

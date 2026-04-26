@@ -1,0 +1,73 @@
+flowchart TB
+    subgraph EYES["👁 Eyes 眼睛模块 — 盯市场"]
+        direction TB
+        RSS[fetch_rss.py<br>RSS 多源抓取]
+        PRICE[fetch_price_router.py<br>三源价格路由]
+        API[fetch_market_api.py<br>市场事件 API]
+        NEWS[fetch_finnhub_news.py<br>个股新闻]
+
+        INSIGHT[SOP_市场洞察<br>P13 分析 → 每日市场日报]
+        RADAR[SOP_投资雷达<br>趋势 + 价格 + 信号 → 桥接报告]
+
+        RSS --> INSIGHT
+        API --> INSIGHT
+        NEWS --> INSIGHT
+        PRICE --> RADAR
+        INSIGHT -->|下一步建议| RADAR
+    end
+
+    subgraph BRAIN["🧠 Brain 大脑模块 — 做分析"]
+        direction TB
+        PCHAIN[P1-P16 提示词资产<br>Brain/references/]
+        STRATEGY[SOP_策略分析<br>5 条策略路由]
+        RESEARCH[SOP_初始调研<br>P1→P4→P2→P9]
+        DIAGNOSIS[投资诊断模块<br>ymos-diagnosis/]
+
+        PCHAIN --> STRATEGY
+        PCHAIN --> RESEARCH
+    end
+
+    subgraph STATE["🏷️ 持仓与关注 — 管状态"]
+        direction TB
+        PREF_DOC[当前关注方向与投资偏好.md<br>系统灵魂文件]
+        HOLD_SM[持仓_状态机.md<br>持仓真相源]
+        WATCH_SM[Watchlist_状态机.md<br>关注真相源]
+        STOCK_DIR[个股文件夹<br>知识库 + 研报 + 备忘录]
+        VIEW[持仓备忘录_视图.md<br>1 分钟扫盘看板]
+        DASH[Dashboard HTML<br>可视化看板]
+        CLOSE_SOP[SOP_持仓收口<br>一致性校验 + 刷新视图]
+    end
+
+    RADAR -->|暗号路由建议| STRATEGY
+    STRATEGY -->|写回分析结果| STOCK_DIR
+    RESEARCH -->|建档| STOCK_DIR
+    STRATEGY -->|更新状态| HOLD_SM
+    STRATEGY -->|更新状态| WATCH_SM
+    CLOSE_SOP --> VIEW
+    CLOSE_SOP --> DASH
+    PREF_DOC -.->|驱动策略分析| STRATEGY
+    PREF_DOC -.->|驱动雷达过滤| RADAR
+
+    EYES ~~~ BRAIN
+    BRAIN ~~~ STATE
+
+    style EYES fill:#1a1b26,stroke:#2ac3de,color:#c0caf5
+    style BRAIN fill:#1a1b26,stroke:#f7768e,color:#c0caf5
+    style STATE fill:#1a1b26,stroke:#9ece6a,color:#c0caf5
+    style RSS fill:#24283b,stroke:#2ac3de,color:#c0caf5
+    style PRICE fill:#24283b,stroke:#2ac3de,color:#c0caf5
+    style API fill:#24283b,stroke:#2ac3de,color:#c0caf5
+    style NEWS fill:#24283b,stroke:#2ac3de,color:#c0caf5
+    style INSIGHT fill:#24283b,stroke:#7dcfff,color:#c0caf5
+    style RADAR fill:#24283b,stroke:#7dcfff,color:#c0caf5
+    style PCHAIN fill:#24283b,stroke:#f7768e,color:#c0caf5
+    style STRATEGY fill:#24283b,stroke:#ff9e64,color:#c0caf5
+    style RESEARCH fill:#24283b,stroke:#ff9e64,color:#c0caf5
+    style DIAGNOSIS fill:#24283b,stroke:#bb9af7,color:#c0caf5
+    style PREF_DOC fill:#24283b,stroke:#e0af68,color:#c0caf5
+    style HOLD_SM fill:#24283b,stroke:#9ece6a,color:#c0caf5
+    style WATCH_SM fill:#24283b,stroke:#9ece6a,color:#c0caf5
+    style STOCK_DIR fill:#24283b,stroke:#73daca,color:#c0caf5
+    style VIEW fill:#24283b,stroke:#9ece6a,color:#c0caf5
+    style DASH fill:#24283b,stroke:#9ece6a,color:#c0caf5
+    style CLOSE_SOP fill:#24283b,stroke:#9ece6a,color:#c0caf5

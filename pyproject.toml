@@ -1,0 +1,7 @@
+[project]
+name = "ymos"
+version = "0.1.0"
+description = "YMOS - Your Market Operating System"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
