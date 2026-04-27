@@ -2,6 +2,8 @@
 
 **Yongmai Operating System** · 自然语言驱动的人机协作投资研究系统
 
+**本仓库基于原始仓库 修改成了skill版本，代码cli化，符合程序员使用习惯**
+
 [![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/Evan-XYZ/YMOS/releases)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 
