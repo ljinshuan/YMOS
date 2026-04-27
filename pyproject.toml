@@ -4,7 +4,12 @@ version = "3.1.0"
 description = "YMOS - Your Market Operating System (勇麦投资操作系统)"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["typer>=0.9", "rich>=13"]
+dependencies = [
+    "typer>=0.9",
+    "rich>=13",
+    "feedparser>=6.0.12",
+    "requests>=2.33.1",
+]
 
 [project.scripts]
 ymos = "cli.main:app"
