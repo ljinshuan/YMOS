@@ -13,9 +13,9 @@ description: |
 
 ## 前置条件
 当日至少有以下产出之一（无产出仍可运行，仅刷新视图）：
-- 市场洞察报告（`Eyes/市场洞察/YYYY-MM/`）
-- 投资雷达报告（`Eyes/投资雷达/YYYY-MM/`）
-- 策略分析报告（`Brain/策略分析/YYYY-MM/`）
+- 市场洞察报告（`data/reports/market-insight/YYYY-MM/`）
+- 投资雷达报告（`data/reports/radar/YYYY-MM/`）
+- 策略分析报告（`data/reports/strategy/YYYY-MM/`）
 
 ## 执行步骤
 > 详细步骤见 sop.md
@@ -24,17 +24,17 @@ description: |
 2. **一致性校验** — 检查策略分析写回是否正确反映在状态机中
    - 时间戳检查 / 标的行检查 / 变更日志检查
    - 如有遗漏：补写状态机 + 记录到缺口清单
-3. **生成持仓备忘录视图** → `持仓与关注/持仓备忘录_视图.md`
+3. **生成持仓备忘录视图** → `data/持仓备忘录_视图.md`
    - 今日驾驶舱 + 持仓卡片 + 缺口清单 + 动作队列
    - 同日覆盖写入，真相源为状态机和备忘录
 4. **生成 Dashboard**（默认执行，用户可跳过）
-   - 自包含 HTML → `持仓与关注/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`
+   - 自包含 HTML → `data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`
    - 含：状态概览 / 每日工作流 / 战略简报 / 晨会速览 / 待办事项 / 持仓一览
 5. **输出确认**
 
 ## 产出物
-- `持仓与关注/持仓备忘录_视图.md`（执行看板，覆盖写入）
-- `持仓与关注/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`（可视化看板）
+- `data/持仓备忘录_视图.md`（执行看板，覆盖写入）
+- `data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`（可视化看板）
 - 状态机补写（如一致性校验发现遗漏）
 
 ## 边界

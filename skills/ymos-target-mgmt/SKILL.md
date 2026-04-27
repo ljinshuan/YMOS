@@ -24,7 +24,7 @@ description: |
 
 ### 动作 A：关注
 1. 确认标的信息 + 自动补全 ticker 后缀（A股 `.SS/.SZ`，港股 `.HK`）
-2. 创建目录：`持仓与关注/动态Watchlist/名称_TICKER/`
+2. 创建目录：`data/动态Watchlist/名称_TICKER/`
 3. 初始化 `个股基础知识库.md`（从模板或最小骨架）
 4. 写入 `Watchlist_状态机.md`（新增行）
 5. 询问是否立即调研 → 是则调用 `ymos-research`，否则异步（雷达会捕获）
@@ -43,10 +43,10 @@ description: |
 1. 迁移：`持仓/名称_TICKER` → `动态Watchlist/名称_TICKER`
 2. 更新状态机（持仓移除 + Watchlist 新增「观察中（已清仓）」）
 3. 追加清仓记录到 `买入卖出备忘录.md`
-4. 生成复盘提醒：`持仓与关注/投资复盘/YYYY-MM-DD_TICKER_清仓复盘.md`
+4. 生成复盘提醒：`data/投资复盘/YYYY-MM-DD_TICKER_清仓复盘.md`
 
 ## 产出物
-- 个股文件夹（`持仓与关注/{持仓,动态Watchlist}/名称_TICKER/`）
+- 个股文件夹（`data/{持仓,动态Watchlist}/名称_TICKER/`）
 - `个股基础知识库.md`（关注时初始化）
 - `买入卖出备忘录.md`（建仓时初始化）
 - 状态机更新（每次操作）

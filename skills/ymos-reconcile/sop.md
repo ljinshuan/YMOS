@@ -13,9 +13,9 @@
 ## 前置条件
 
 当日至少有以下产出之一：
-- 市场洞察报告（`Eyes/市场洞察/YYYY-MM/`）
-- 投资雷达报告（`Eyes/投资雷达/YYYY-MM/`）
-- 策略分析报告（`Brain/策略分析/YYYY-MM/`）
+- 市场洞察报告（`data/reports/market-insight/YYYY-MM/`）
+- 投资雷达报告（`data/reports/radar/YYYY-MM/`）
+- 策略分析报告（`data/reports/strategy/YYYY-MM/`）
 
 如果当日没有任何新增产出，仍可运行（仅刷新视图），但需告知用户"今日无新增分析"。
 
@@ -27,10 +27,10 @@
 
 | 文件 | 用途 |
 |:---|:---|
-| `持仓与关注/持仓_状态机.md` | 当前持仓状态 |
-| `持仓与关注/Watchlist_状态机.md` | 当前关注状态 |
-| `Brain/策略分析/YYYY-MM/` | 当日策略分析报告（如有） |
-| `Eyes/投资雷达/YYYY-MM/` | 当日投资雷达报告（如有） |
+| `data/持仓_状态机.md` | 当前持仓状态 |
+| `data/Watchlist_状态机.md` | 当前关注状态 |
+| `data/reports/strategy/YYYY-MM/` | 当日策略分析报告（如有） |
+| `data/reports/radar/YYYY-MM/` | 当日投资雷达报告（如有） |
 | 各持仓标的的 `买入卖出备忘录.md` | 最新操作记录 |
 
 ---
@@ -51,7 +51,7 @@
 
 ## Step 3：生成持仓备忘录视图
 
-覆盖写入：`持仓与关注/持仓备忘录_视图.md`
+覆盖写入：`data/持仓备忘录_视图.md`
 
 ### 视图结构
 
@@ -130,7 +130,7 @@
 生成一个**自包含 HTML 文件**（CSS 内嵌，无外部依赖），写入：
 
 ```
-持仓与关注/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html
+data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html
 ```
 
 ### 布局要求
@@ -198,6 +198,6 @@
 ✅ 持仓收口完成
 - 一致性校验：[通过 / X 处遗漏已补写]
 - 持仓备忘录视图已刷新
-- Dashboard 已生成：持仓与关注/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html
+- Dashboard 已生成：data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html
 - 缺口清单：[X 项数据缺口 / Y 项结构缺口 / 无缺口]
 ```

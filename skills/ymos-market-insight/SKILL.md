@@ -19,8 +19,8 @@ description: |
 
 1. **创建输出目录**
    ```
-   mkdir -p "Eyes/市场洞察/Raw_Data/YYYY-MM"
-   mkdir -p "Eyes/市场洞察/YYYY-MM"
+   mkdir -p "data/reports/market-insight/raw/YYYY-MM"
+   mkdir -p "data/reports/market-insight/YYYY-MM"
    ```
 2. **拉取市场数据**（自动回退）
    - 优先：`ymos fetch-market`（API，需 `YMOS_MARKET_API_KEY`）
@@ -28,16 +28,16 @@ description: |
    - RSS 路径需额外执行 CIO 半成品处理（`prompts/cio-rss-processor.md`）
 3. **补充数据源**（可选，有 key/config 才执行）
    - `ymos fetch-news`（Finnhub 个股新闻，需 `FINNHUB_API_KEY`，仅持仓美股/Crypto）
-   - 补充 RSS（需 `Eyes/scripts/rss_sources_custom.json` 存在）
+   - 补充 RSS（需 `cli/config/rss_sources_custom.json` 存在）
 4. **调用 P13 分析**（`prompts/p13-market-scanner.md`）
    - 输出硬约束：市场体温 + 战略简报 + 五维度详情 + 机会与风险 + 后续方向 + 页脚声明
-5. **保存报告** → `Eyes/市场洞察/YYYY-MM/YYYY-MM-DD_市场洞察.md`
+5. **保存报告** → `data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`
 
 ## 产出物
-- `Eyes/市场洞察/Raw_Data/YYYY-MM/financial_data_YYYYMMDD.json`（原始数据）
-- `Eyes/市场洞察/Raw_Data/YYYY-MM/cio_processed_YYYYMMDD.md`（仅 RSS 路径）
-- `Eyes/市场洞察/Raw_Data/YYYY-MM/finnhub_news_YYYYMMDD.json`（有 key 时）
-- `Eyes/市场洞察/YYYY-MM/YYYY-MM-DD_市场洞察.md`（核心产出）
+- `data/reports/market-insight/raw/YYYY-MM/financial_data_YYYYMMDD.json`（原始数据）
+- `data/reports/market-insight/raw/YYYY-MM/cio_processed_YYYYMMDD.md`（仅 RSS 路径）
+- `data/reports/market-insight/raw/YYYY-MM/finnhub_news_YYYYMMDD.json`（有 key 时）
+- `data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`（核心产出）
 
 ## 边界
 - 不看持仓，不看价格

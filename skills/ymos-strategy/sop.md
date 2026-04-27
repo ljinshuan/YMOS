@@ -1,7 +1,7 @@
 # 🎯 策略分析 SOP
 
 > 暗号：`我想买 [ticker]` / `我想卖 [ticker]` / `做个仓位再平衡` / `跑一下策略分析`
-> 模块：Brain/（大脑 — 策略路由 + 分析）
+> 模块：ymos-strategy（投资策略分析与路由分发）
 
 ---
 
@@ -9,7 +9,7 @@
 
 策略分析专注回答一件事：**基于分析结论和当前仓位，现在应该做什么动作，怎么做**
 
-- 策略分析是下游模块，依赖 Eyes（投资雷达）的输出作为触发
+- 策略分析是下游模块，依赖投资雷达（ymos-radar）的输出作为触发
 - 它本身不做信息收集，也不做市场洞察
 - 核心原则：**能跑的先跑完，不阻塞**
 
@@ -38,7 +38,7 @@
 - 跳到 Step 3
 
 **1.2 定时任务/自动触发**（`跑一下策略分析`）：
-- 读取最新投资雷达报告：`Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md`
+- 读取最新投资雷达报告：`data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
   - 若今日无雷达 → 查找最近一份
 - 提取雷达报告中 `## 🔭 下一步建议 > 策略分析建议` 区块
 - 从中筛选需要策略分析的标的和动作意图
@@ -46,7 +46,7 @@
 **1.3 消费调研建议（1.2 同时执行）**：
 - 同样从投资雷达报告中提取 `## 🔭 下一步建议 > 调研建议` 区块
 - 对每个「建议跑 调研一下 TICKER」的标的：
-  - 调用 `Brain/SOP_初始调研.md` 执行 P1+P4+P2 补全
+  - 调用 `skills/ymos-research/sop.md` 执行 P1+P4+P2 补全
   - 完成后记录到策略分析日志的「本次自动调研」section
 - 若无调研建议 → 跳过
 - **先完成 1.3 调研，再进入 Step 2**（确保后续策略路由有完整的个股上下文）
@@ -60,13 +60,13 @@
 按顺序读取：
 
 ```
-持仓与关注/当前关注方向与投资偏好.md          ← 必须存在，否则阻塞
-持仓与关注/持仓_状态机.md
-持仓与关注/Watchlist_状态机.md
+data/state/preferences.md          ← 必须存在，否则阻塞
+data/state/holdings.md
+data/state/watchlist.md
 ```
 
 > ⛔ 如果 `当前关注方向与投资偏好.md` 不存在或为空 → 停止，输出：
-> 「前置条件不足：缺少当前关注方向与投资偏好。请先填写（路径：持仓与关注/当前关注方向与投资偏好.md）」
+> 「前置条件不足：缺少当前关注方向与投资偏好。请先填写（路径：data/state/preferences.md）」
 
 ### Step 3：逐标的前置检查与补足
 
@@ -74,12 +74,12 @@
 
 | # | 检查项 | 文件路径 | 若缺失 |
 |:---|:---|:---|:---|
-| ① | 个股基础知识库 | `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md` | **调用 Brain/SOP_初始调研.md 补足** → 继续 |
+| ① | 个股基础知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md` | **调用 skills/ymos-research/sop.md 补足** → 继续 |
 | ② | P1 基石档案 | 知识库内 `## P1 基石档案` 区块 | **调用初始调研补足** → 继续 |
 | ③ | P4 重点关注点 | 知识库内 `## P4 重点关注点` 区块 | **调用初始调研补足** → 继续 |
 | ④ | P2 阶段判断 | 知识库内 `## P2 阶段判断` 区块 | **AI 自动执行 P2** → 继续 |
-| ⑤ | 买入卖出备忘录 | `持仓与关注/{位置}/名称_TICKER/买入卖出备忘录.md` | **不阻塞**，分析完后提示补充 |
-| ⑥ | 当前关注方向与投资偏好 | `持仓与关注/当前关注方向与投资偏好.md` | ⛔ 阻塞（Step 2 已检查） |
+| ⑤ | 买入卖出备忘录 | `data/stocks/{holdings,watchlist}/名称_TICKER/买入卖出备忘录.md` | **不阻塞**，分析完后提示补充 |
+| ⑥ | 当前关注方向与投资偏好 | `data/state/preferences.md` | ⛔ 阻塞（Step 2 已检查） |
 
 **不阻塞原则**：
 - ①②③ 缺失 → 调用初始调研子模块补足后继续
@@ -92,8 +92,8 @@
 ### Step 4：执行目录初始化
 
 ```bash
-mkdir -p "Brain/策略分析/Raw_Data/$(date +%Y-%m)" \
-         "Brain/策略分析/$(date +%Y-%m)"
+mkdir -p "data/reports/strategy/raw/$(date +%Y-%m)" \
+         "data/reports/strategy/$(date +%Y-%m)"
 ```
 
 ### Step 5：执行策略路由
@@ -142,7 +142,7 @@ Human 最终决策 ✋
 2. 对应标的 `买入卖出备忘录.md` → 追加买入记录
 3. `持仓_状态机.md` → 新增标的
 4. 将标的从 `动态Watchlist/` 迁移至 `持仓/`
-5. 归档到 `Brain/策略分析/YYYY-MM/YYYY-MM-DD_TICKER_买入.md`
+5. 归档到 `data/reports/strategy/YYYY-MM/YYYY-MM-DD_TICKER_买入.md`
 6. → **最终挪入个股文件夹**
 7. 策略报告中**必须包含**「## 候选标的横向对比」和「## 仓位建议」区块
 
@@ -198,7 +198,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 2. 执行四维度复盘：买入逻辑回溯 / P1P4偏差 / P5P6阈值校准 / 经验教训提炼
 3. **写回个股知识库**：在 `个股基础知识库.md` 末尾追加 `## P11 交易复盘` 区块
 4. **写回投资偏好**（需用户确认）：如阈值需调整，追加到「核心心法」→「历史教训」
-5. 归档复盘报告到 `Brain/策略分析/YYYY-MM/YYYY-MM-DD_TICKER_P11复盘.md` → 最终挪入个股文件夹
+5. 归档复盘报告到 `data/reports/strategy/YYYY-MM/YYYY-MM-DD_TICKER_P11复盘.md` → 最终挪入个股文件夹
 
 **部分减仓时**：不执行完整 P11，仅输出简版提示（买入逻辑是否仍然成立）。
 
@@ -208,7 +208,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 3. 完全清仓：标的从 `持仓/` 移入 `动态Watchlist/`
 4. 归档 → 挪入个股文件夹
 5. 完全清仓：执行 P11 复盘（见上方）并归档复盘报告
-6. 在 `持仓与关注/投资复盘/` 生成复盘提醒（仅完全清仓时）
+6. 在 `data/stocks/{holdings}/名称_TICKER/` 生成复盘提醒（仅完全清仓时）
 
 ---
 
@@ -227,7 +227,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 **写回**：
 1. `持仓_状态机.md` → 更新权重
 2. 各标的 `买入卖出备忘录.md` → 追加记录
-3. 归档到 `Brain/策略分析/YYYY-MM/YYYY-MM-DD_仓位再平衡.md`
+3. 归档到 `data/reports/strategy/YYYY-MM/YYYY-MM-DD_仓位再平衡.md`
 4. 策略报告中**必须包含**「## 仓位调整建议」区块（来自 P17 输出）
 
 ---
@@ -237,22 +237,22 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 每次策略分析**必须完成以下写回**：
 
 **A. 策略报告**
-- `Brain/策略分析/YYYY-MM/YYYY-MM-DD_TICKER_动作类型.md`（成品报告）
-- `Brain/策略分析/Raw_Data/YYYY-MM/strategy_context_YYYYMMDD_TICKER_动作.json`（中间件）
-- **个股报告最终挪入对应标的文件夹**（`持仓与关注/{位置}/名称_TICKER/`）
+- `data/reports/strategy/YYYY-MM/YYYY-MM-DD_TICKER_动作类型.md`（成品报告）
+- `data/reports/strategy/raw/YYYY-MM/strategy_context_YYYYMMDD_TICKER_动作.json`（中间件）
+- **个股报告最终挪入对应标的文件夹**（`data/stocks/{holdings,watchlist}/名称_TICKER/`）
 
 **B. 状态更新**
 - `持仓_状态机.md` / `Watchlist_状态机.md`
 - 对应标的 `买入卖出备忘录.md`
 
 **B+. 个股知识库增量更新**
-- 若本次分析执行了 P2 → 将结论增量写回 `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md` 的 `## P2 阶段判断` 区块
+- 若本次分析执行了 P2 → 将结论增量写回 `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md` 的 `## P2 阶段判断` 区块
   - 已有旧 P2 结论 → **替换**为最新结论（保留日期戳，如 `> 更新于 YYYY-MM-DD`）
   - 无此区块 → **新建追加**到知识库末尾
 - 目的：下次策略分析 Step 3 前置检查时，P2 不再缺失，避免重复执行
 
 **C. 策略分析日志（当日汇总）** ⭐
-- 路径：`Brain/策略分析/YYYY-MM/策略分析日志_YYYY-MM-DD.md`
+- 路径：`data/reports/strategy/YYYY-MM/策略分析日志_YYYY-MM-DD.md`
 - 每次策略分析完成后，追加条目到当日日志
 - 日志格式：
 
@@ -263,7 +263,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 
 | 时间 | 标的 | 动作 | 路由 | 结论摘要 | 报告路径 | 状态 |
 |:---|:---|:---|:---|:---|:---|:---|
-| HH:MM | TICKER | 持有评估 | C | P2:PVE P6:持有 P12:通过 | 持仓与关注/持仓/XX/... | 待确认 |
+| HH:MM | TICKER | 持有评估 | C | P2:PVE P6:持有 P12:通过 | data/stocks/holdings/XX/... | 待确认 |
 
 ## 📋 本次自动调研（Step 1.3）
 
@@ -293,7 +293,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 仅当存在缺失项时，在策略报告末尾追加：
 ```markdown
 ## 📌 优化建议
-- 建议补充买入卖出备忘录：`持仓与关注/{位置}/名称_TICKER/买入卖出备忘录.md`
+- 建议补充买入卖出备忘录：`data/stocks/{holdings,watchlist}/名称_TICKER/买入卖出备忘录.md`
 ```
 
 > 注意：P2 写回已在 B+ 步骤自动完成，不再列入优化建议。
@@ -308,11 +308,11 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 
 | 文件 | 路径 | 说明 |
 |:---|:---|:---|
-| 策略分析报告 | `Brain/策略分析/YYYY-MM/` → 最终挪入个股文件夹 | 按日-标的归档 |
-| 策略上下文（Raw） | `Brain/策略分析/Raw_Data/YYYY-MM/` | 中间件 |
-| 策略分析日志 | `Brain/策略分析/YYYY-MM/` | 当日汇总 |
-| 更新：状态机 | `持仓与关注/` | 状态 + P4 |
-| 更新：单标的 | `持仓与关注/{位置}/名称_TICKER/` | 备忘录 + 策略报告 |
+| 策略分析报告 | `data/reports/strategy/YYYY-MM/` → 最终挪入个股文件夹 | 按日-标的归档 |
+| 策略上下文（Raw） | `data/reports/strategy/raw/YYYY-MM/` | 中间件 |
+| 策略分析日志 | `data/reports/strategy/YYYY-MM/` | 当日汇总 |
+| 更新：状态机 | `data/state/` | 状态 + P4 |
+| 更新：单标的 | `data/stocks/{holdings,watchlist}/名称_TICKER/` | 备忘录 + 策略报告 |
 
 ---
 
@@ -320,15 +320,15 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 
 | 内容 | 路径 |
 |:---|:---|
-| 当前关注方向与投资偏好 | `持仓与关注/当前关注方向与投资偏好.md` |
-| 持仓状态机 | `持仓与关注/持仓_状态机.md` |
-| Watchlist 状态机 | `持仓与关注/Watchlist_状态机.md` |
-| 个股知识库 | `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md` |
-| 买入卖出备忘录 | `持仓与关注/{位置}/名称_TICKER/买入卖出备忘录.md` |
-| 最新投资雷达 | `Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md` |
-| 策略归档 | `Brain/策略分析/YYYY-MM/` |
-| 策略分析日志 | `Brain/策略分析/YYYY-MM/策略分析日志_YYYY-MM-DD.md` |
-| 初始调研 SOP | `Brain/SOP_初始调研.md` |
+| 当前关注方向与投资偏好 | `data/state/preferences.md` |
+| 持仓状态机 | `data/state/holdings.md` |
+| Watchlist 状态机 | `data/state/watchlist.md` |
+| 个股知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md` |
+| 买入卖出备忘录 | `data/stocks/{holdings,watchlist}/名称_TICKER/买入卖出备忘录.md` |
+| 最新投资雷达 | `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md` |
+| 策略归档 | `data/reports/strategy/YYYY-MM/` |
+| 策略分析日志 | `data/reports/strategy/YYYY-MM/策略分析日志_YYYY-MM-DD.md` |
+| 初始调研 SOP | `skills/ymos-research/sop.md` |
 | P 提示词目录 | `skills/<skill>/prompts/` 或 `skills/ymos-core/prompts/` |
 
 ---
@@ -354,7 +354,7 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 ## ⚠️ 边界与反模式
 
 **策略分析不做**：
-- 不做市场洞察（Eyes 的事）
+- 不做市场洞察（ymos-market-insight 的事）
 - 不做信号发现（投资雷达的事）
 - 不自动执行买卖（Human in the Loop）
 
@@ -367,4 +367,4 @@ P2 → P6 利润守门员 → [事件]P3 → [宏观]P8 → P12 纪律审查 →
 
 ---
 
-*SOP 版本：2026-03-18 · YMOS V3 三模块制（Eyes / Brain / 持仓与关注）*
+*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*

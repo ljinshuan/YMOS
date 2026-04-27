@@ -1,7 +1,7 @@
 # 🔬 初始调研 SOP（可复用子模块）
 
 > 暗号：`调研一下 [ticker]`（也可被其他 SOP 按需调用）
-> 模块：Brain/（大脑 — 策略路由 + 分析）
+> 模块：ymos-research（初始调研子模块）
 
 ---
 
@@ -38,12 +38,12 @@
 ### Step 1：确认标的信息
 
 - 解析 ticker 和中文名称
-- 确认位置：`持仓与关注/持仓/名称_TICKER/` 或 `持仓与关注/动态Watchlist/名称_TICKER/`
+- 确认位置：`data/stocks/holdings/名称_TICKER/` 或 `data/stocks/watchlist/名称_TICKER/`
 - 确认目录存在（不存在则创建）
 
 ### Step 2：检查个股基础知识库
 
-- 读取 `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md`
+- 读取 `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md`
 - 若不存在：从模板创建最小骨架
 
 ```markdown
@@ -142,8 +142,8 @@ AI 自主完成（基于 P1+P4 + 搜索最新数据）：
 
 | 文件 | 路径 | 说明 |
 |:---|:---|:---|
-| 个股知识库（P1+P4+P2） | `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md` | 核心产出 |
-| 状态机更新 | `持仓与关注/Watchlist_状态机.md` 或 `持仓_状态机.md` | P4 摘要同步 |
+| 个股知识库（P1+P4+P2） | `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md` | 核心产出 |
+| 状态机更新 | `data/state/watchlist.md` 或 `data/state/holdings.md` | P4 摘要同步 |
 
 ---
 
@@ -155,8 +155,8 @@ AI 自主完成（基于 P1+P4 + 搜索最新数据）：
 | P2 提示词 | `skills/ymos-core/prompts/p2-phase-check.md` |
 | P4 提示词 | `prompts/p4-radar.md` |
 | P9 提示词 | `skills/ymos-core/prompts/p9-valuation.md` |
-| 个股知识库 | `持仓与关注/{位置}/名称_TICKER/个股基础知识库.md` |
-| 模板 | `持仓与关注/_模板_单标的/` |
+| 个股知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md` |
+| 模板 | `skills/ymos-core/templates/` |
 
 ---
 
@@ -178,4 +178,4 @@ AI 自主完成（基于 P1+P4 + 搜索最新数据）：
 
 ---
 
-*SOP 版本：2026-03-18 · YMOS V3 三模块制（Eyes / Brain / 持仓与关注）*
+*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*

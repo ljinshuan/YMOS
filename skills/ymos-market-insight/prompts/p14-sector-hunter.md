@@ -4,9 +4,9 @@
 
 ## 路径上下文（YMOS）
 - 根目录：`YMOS/`
-- 主数据目录：`持仓与关注/`
-- 读取：`Eyes/市场洞察/YYYY-MM/Raw_Data/` 与最近洞察文件
-- 写回：`Eyes/投资雷达/YYYY-MM/` 与状态机
+- 主数据目录：`data/stocks/`
+- 读取：`data/reports/market-insight/raw/YYYY-MM/` 与最近洞察文件
+- 写回：`data/reports/radar/YYYY-MM/` 与状态机
 
 ## 适用场景
 

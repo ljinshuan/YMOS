@@ -17,7 +17,7 @@ description: |
 - `跑一下策略分析` — 定时/手动批量 → 自动模式
 
 ## 前置条件
-- `持仓与关注/当前关注方向与投资偏好.md` 必须存在（否则阻塞）
+- `data/state/preferences.md` 必须存在（否则阻塞）
 - 投资雷达报告作为触发来源（`跑一下策略分析` 模式）
 - 各标的应有 P1+P4+P2（缺失时自动调用 `ymos-research` 补足）
 
@@ -54,13 +54,13 @@ description: |
 - `prompts/p17-position-sizing.md`（仓位计算器）
 
 ## 产出物
-- `Brain/策略分析/YYYY-MM/YYYY-MM-DD_TICKER_动作类型.md`（最终挪入个股文件夹）
-- `Brain/策略分析/Raw_Data/YYYY-MM/strategy_context_*.json`（中间件）
-- `Brain/策略分析/YYYY-MM/策略分析日志_YYYY-MM-DD.md`（当日汇总）
+- `data/reports/strategy/YYYY-MM/YYYY-MM-DD_TICKER_动作类型.md`（最终挪入个股文件夹）
+- `data/reports/strategy/raw/YYYY-MM/strategy_context_*.json`（中间件）
+- `data/reports/strategy/YYYY-MM/策略分析日志_YYYY-MM-DD.md`（当日汇总）
 - 状态机更新 + 个股知识库增量 + 买入卖出备忘录追加
 
 ## 边界
-- 不做市场洞察（Eyes 的事）
+- 不做市场洞察（ymos-market-insight 的事）
 - 不做信号发现（投资雷达的事）
 - 不自动执行买卖（Human in the Loop）
 - 永远不跳过 P2 直接进 P5/P6，永远不缺 P12 就给买卖建议

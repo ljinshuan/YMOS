@@ -1,7 +1,7 @@
 # 📊 市场洞察 SOP
 
 > 暗号：`跑一下市场洞察`
-> 模块：Eyes/（眼睛 — 盯市场）
+> 模块：ymos-market-insight（市场事件监测）
 
 ---
 
@@ -30,24 +30,24 @@
 ### Step 1：创建输出目录
 
 ```bash
-mkdir -p "Eyes/市场洞察/Raw_Data/$(date +%Y-%m)"
-mkdir -p "Eyes/市场洞察/$(date +%Y-%m)"
+mkdir -p "data/reports/market-insight/raw/$(date +%Y-%m)"
+mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 ```
 
 ### Step 2：拉取市场数据（自动回退）
 
 **方式 A：市场信息 API（优先）**
 ```bash
-python3 Eyes/scripts/fetch_market_api.py 1 \
-  --output "Eyes/市场洞察/Raw_Data/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
+ymos fetch-market fetch --days 1 \
+  --output "data/reports/market-insight/raw/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
 ```
 
 > 脚本会自动加载 `.env` 中的 `YMOS_MARKET_API_KEY`。无 key 时脚本以 exit(0) 退出并提示使用 RSS。
 
 **方式 B：RSS 免费数据源（回退 / 无 API Key 时使用）**
 ```bash
-python3 Eyes/scripts/fetch_rss.py 1 \
-  --output "Eyes/市场洞察/Raw_Data/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
+ymos fetch-rss fetch --days 1 \
+  --output "data/reports/market-insight/raw/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
 ```
 
 **Agent 执行规则**：
@@ -65,16 +65,16 @@ python3 Eyes/scripts/fetch_rss.py 1 \
 
 CIO 处理器会执行：去重合并 → 噪音过滤 → 事件聚类 → 信号提取
 
-**输出路径**：`Eyes/市场洞察/Raw_Data/YYYY-MM/cio_processed_YYYYMMDD.md`
+**输出路径**：`data/reports/market-insight/raw/YYYY-MM/cio_processed_YYYYMMDD.md`
 
 ### Step 2.6：拉取 Finnhub 持仓个股新闻（补充数据源，可选）
 
 > **仅当 `.env` 或环境变量中存在 `FINNHUB_API_KEY` 时执行。无 key 则静默跳过。**
 
 ```bash
-python3 Eyes/scripts/fetch_finnhub_news.py \
+ymos fetch-news fetch \
   --hours 24 \
-  --output "Eyes/市场洞察/Raw_Data/$(date +%Y-%m)/finnhub_news_$(date +%Y%m%d).json"
+  --output "data/reports/market-insight/raw/$(date +%Y-%m)/finnhub_news_$(date +%Y%m%d).json"
 ```
 
 **策略说明**：
@@ -84,19 +84,19 @@ python3 Eyes/scripts/fetch_finnhub_news.py \
 
 ### Step 2.7：拉取补充 RSS 数据（可选）
 
-> **仅当 `Eyes/scripts/rss_sources_custom.json` 存在时执行。无此文件则静默跳过。**
+> **仅当 `cli/config/rss_sources_custom.json` 存在时执行。无此文件则静默跳过。**
 >
 > 补充 RSS 与主数据源（API 或默认 RSS）独立运行，不互斥。
 > 适用场景：用户已有 Market Data API，但还想订阅特定行业/深度分析的 RSS 源。
 
 ```bash
-python3 Eyes/scripts/fetch_rss.py {天数} \
-  --config Eyes/scripts/rss_sources_custom.json \
-  --output "Eyes/市场洞察/Raw_Data/$(date +%Y-%m)/supplementary_rss_$(date +%Y%m%d).json"
+ymos fetch-rss fetch {天数} \
+  --config cli/config/rss_sources_custom.json \
+  --output "data/reports/market-insight/raw/$(date +%Y-%m)/supplementary_rss_$(date +%Y%m%d).json"
 ```
 
 **Agent 执行规则**：
-1. 检查 `Eyes/scripts/rss_sources_custom.json` 是否存在
+1. 检查 `cli/config/rss_sources_custom.json` 是否存在
 2. 存在 → 执行拉取，输出为 `supplementary_rss_YYYYMMDD.json`
 3. 不存在 → 静默跳过，不提示用户
 
@@ -115,7 +115,7 @@ python3 Eyes/scripts/fetch_rss.py {天数} \
 调用：`prompts/p13-market-scanner.md`
 
 **P13 分析时，参考过去几天的历史洞察（如有）**：
-- 路径：`Eyes/市场洞察/YYYY-MM/` 目录下最近几份报告
+- 路径：`data/reports/market-insight/YYYY-MM/` 目录下最近几份报告
 
 **输出格式硬约束**（缺一不可）：
 1. **市场体温**标签（Risk On / Risk Off / Chaos）+ **核心看点**
@@ -134,7 +134,7 @@ python3 Eyes/scripts/fetch_rss.py {天数} \
 
 ### Step 4：保存洞察报告
 
-**输出路径**：`Eyes/市场洞察/YYYY-MM/YYYY-MM-DD_市场洞察.md`
+**输出路径**：`data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`
 
 ### Step 5：在对话中输出
 
@@ -146,10 +146,10 @@ python3 Eyes/scripts/fetch_rss.py {天数} \
 
 | 文件 | 路径 | 命名规则 | 说明 |
 |:---|:---|:---|:---|
-| Raw Data（API/RSS） | `Eyes/市场洞察/Raw_Data/YYYY-MM/` | `financial_data_YYYYMMDD.json` | 必有 |
-| CIO 半成品情报 | `Eyes/市场洞察/Raw_Data/YYYY-MM/` | `cio_processed_YYYYMMDD.md` | 仅 RSS 路径 |
-| Finnhub News | `Eyes/市场洞察/Raw_Data/YYYY-MM/` | `finnhub_news_YYYYMMDD.json` | 有 key 才有 |
-| 市场洞察报告 | `Eyes/市场洞察/YYYY-MM/` | `YYYY-MM-DD_市场洞察.md` | 必有 |
+| Raw Data（API/RSS） | `data/reports/market-insight/raw/YYYY-MM/` | `financial_data_YYYYMMDD.json` | 必有 |
+| CIO 半成品情报 | `data/reports/market-insight/raw/YYYY-MM/` | `cio_processed_YYYYMMDD.md` | 仅 RSS 路径 |
+| Finnhub News | `data/reports/market-insight/raw/YYYY-MM/` | `finnhub_news_YYYYMMDD.json` | 有 key 才有 |
+| 市场洞察报告 | `data/reports/market-insight/YYYY-MM/` | `YYYY-MM-DD_市场洞察.md` | 必有 |
 
 ---
 
@@ -167,15 +167,15 @@ python3 Eyes/scripts/fetch_rss.py {天数} \
 
 | 内容 | 路径 |
 |:---|:---|
-| 市场数据脚本（API） | `Eyes/scripts/fetch_market_api.py` |
-| 市场数据脚本（RSS） | `Eyes/scripts/fetch_rss.py` |
-| RSS 源配置 | `Eyes/scripts/rss_sources.json` |
+| 市场数据脚本（API） | `cli/`（`ymos fetch-market`） |
+| 市场数据脚本（RSS） | `cli/`（`ymos fetch-rss`） |
+| RSS 源配置 | `cli/config/rss_sources.json` |
 | CIO 处理提示词 | `prompts/cio-rss-processor.md` |
-| Finnhub News 脚本 | `Eyes/scripts/fetch_finnhub_news.py` |
+| Finnhub News 脚本 | `cli/`（`ymos fetch-news`） |
 | P13 提示词 | `prompts/p13-market-scanner.md` |
 | P14 提示词（手动深挖） | `prompts/p14-sector-hunter.md` |
-| 历史洞察报告归档 | `Eyes/市场洞察/YYYY-MM/` |
-| Raw Data 归档 | `Eyes/市场洞察/Raw_Data/YYYY-MM/` |
+| 历史洞察报告归档 | `data/reports/market-insight/YYYY-MM/` |
+| Raw Data 归档 | `data/reports/market-insight/raw/YYYY-MM/` |
 
 ---
 
@@ -187,4 +187,4 @@ python3 Eyes/scripts/fetch_rss.py {天数} \
 
 ---
 
-*SOP 版本：2026-03-18 · YMOS V3 三模块制（Eyes / Brain / 持仓与关注）*
+*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*

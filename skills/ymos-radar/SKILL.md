@@ -15,8 +15,8 @@ description: |
 
 ## 前置条件
 - **自动依赖 ymos-market-insight**：若当日洞察不存在，先自动触发 `跑一下市场洞察`
-- `持仓与关注/当前关注方向与投资偏好.md` 应存在
-- `持仓与关注/持仓_状态机.md` 或 `Watchlist_状态机.md` 应有内容
+- `data/state/preferences.md` 应存在
+- `data/state/holdings.md` 或 `data/state/watchlist.md` 应有内容
 
 ## 执行步骤
 > 详细步骤见 sop.md
@@ -31,12 +31,12 @@ description: |
    - 三源分流：美股/Crypto → Finnhub，A 股 → Tushare，港股 → Yahoo，兜底 → Yahoo
 5. **综合分析** — 市场趋势回顾 + 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
 6. **触发分流**（AI 自主分析）— 重大事件/财报/宏观事件触发对应 P 链
-7. **生成投资雷达报告** → `Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md`
+7. **生成投资雷达报告** → `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
 8. **写回状态机** — P4 更新 + 价格更新
 
 ## 产出物
-- `Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）
-- `Eyes/投资雷达/Raw_Data/YYYY-MM/price_scan_YYYYMMDD.json`（价格数据）
+- `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）
+- `data/reports/radar/raw/YYYY-MM/price_scan_YYYYMMDD.json`（价格数据）
 - 状态机更新（P4 + 价格）
 - 个股知识库 P4 增量更新
 

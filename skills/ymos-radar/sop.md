@@ -1,13 +1,13 @@
 # 📡 投资雷达 SOP（桥接报告）
 
 > 暗号：`跑一下投资雷达`
-> 模块：Eyes/（眼睛 — 盯市场）
+> 模块：ymos-radar（持仓信号追踪与桥接报告）
 
 ---
 
 ## 一句话定位
 
-投资雷达是 Eyes → Brain 的**桥接报告**：**从7天市场趋势 + 价格变化 + 个股事件中，判断下一步该调研什么、该分析什么**
+投资雷达是市场洞察 → 策略分析的**桥接报告**：**从7天市场趋势 + 价格变化 + 个股事件中，判断下一步该调研什么、该分析什么**
 
 - **市场洞察看全局，投资雷达看持仓**
 - 统一承载：策略分析建议 + 调研建议（取代原 status.md + 调研与确认）
@@ -32,23 +32,23 @@
 按顺序读取以下文件：
 
 ```
-持仓与关注/当前关注方向与投资偏好.md
-持仓与关注/持仓_状态机.md
-持仓与关注/Watchlist_状态机.md
+data/state/preferences.md
+data/state/holdings.md
+data/state/watchlist.md
 ```
 
 ### Step 2：加载市场洞察（7天趋势分析）⭐ 核心输入
 
 **2.1 当日洞察**
 
-查找路径：`Eyes/市场洞察/YYYY-MM/YYYY-MM-DD_市场洞察.md`
+查找路径：`data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`
 
 - **若当日洞察已存在**：直接读取
 - **若当日洞察不存在**：先自动触发「跑一下市场洞察」，再继续
 
 **2.2 过去7天趋势分析**
 
-扫描 `Eyes/市场洞察/YYYY-MM/` 下最近 7 个洞察文件，提取：
+扫描 `data/reports/market-insight/YYYY-MM/` 下最近 7 个洞察文件，提取：
 - **主线演变**：哪些主题连续多日出现？强化还是弱化？
 - **信号持续性**：重复信号 = 趋势；单次 = 噪音
 - **事件链条**：多个独立事件是否指向同一结论？
@@ -56,7 +56,7 @@
 
 ### Step 3：加载上份投资雷达（连续性基础）
 
-查找最新雷达：`Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md`
+查找最新雷达：`data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
 
 提取用于连续跟踪的信息：
 - 上期关注板块和监控点
@@ -68,11 +68,11 @@
 **只扫持仓 + Watchlist，不做全市场盲扫**
 
 ```bash
-mkdir -p "Eyes/投资雷达/Raw_Data/$(date +%Y-%m)" \
-         "Eyes/投资雷达/$(date +%Y-%m)"
+mkdir -p "data/reports/radar/raw/$(date +%Y-%m)" \
+         "data/reports/radar/$(date +%Y-%m)"
 
-python3 Eyes/scripts/price_scan_from_state.py \
-  --output "Eyes/投资雷达/Raw_Data/$(date +%Y-%m)/price_scan_$(date +%Y%m%d).json"
+ymos price-scan scan --from-state \
+  --output "data/reports/radar/raw/$(date +%Y-%m)/price_scan_$(date +%Y%m%d).json"
 ```
 
 > **价格路由规则（三源分流）**：
@@ -130,7 +130,7 @@ python3 Eyes/scripts/price_scan_from_state.py \
 
 **C. 新机会发现**（基于市场趋势 + 用户偏好，主动发现值得关注的新方向）：
 
-> 读取 `持仓与关注/当前关注方向与投资偏好.md`，结合当日市场洞察的趋势信号，
+> 读取 `data/state/preferences.md`，结合当日市场洞察的趋势信号，
 > 识别**用户偏好范围内但尚未持仓/关注的机会方向**。
 
 | 条件 | 输出 |
@@ -164,11 +164,11 @@ python3 Eyes/scripts/price_scan_from_state.py \
 **分析产出写回**：
 - 各标的 `个股基础知识库.md` 对应区块
 - 状态机 `P4重点关注点` 列
-- 如触发了策略路由 → 对应报告归档到 `Brain/策略分析/`
+- 如触发了策略路由 → 对应报告归档到 `data/reports/strategy/`
 
 ### Step 7：生成投资雷达报告
 
-**输出路径**：`Eyes/投资雷达/YYYY-MM/投资雷达_YYYY-MM-DD.md`
+**输出路径**：`data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
 
 **报告结构**：
 ```markdown
@@ -207,7 +207,7 @@ python3 Eyes/scripts/price_scan_from_state.py \
 ### Step 8：写回状态机
 
 每次完整流程**至少写回**：
-1. `持仓与关注/Watchlist_状态机.md` 或 `持仓_状态机.md`（P4更新、价格更新）
+1. `data/state/watchlist.md` 或 `持仓_状态机.md`（P4更新、价格更新）
 2. 相关标的的 `个股基础知识库.md`（P4 增量更新）
 
 ---
@@ -216,10 +216,10 @@ python3 Eyes/scripts/price_scan_from_state.py \
 
 | 文件 | 路径 | 说明 |
 |:---|:---|:---|
-| 投资雷达报告 | `Eyes/投资雷达/YYYY-MM/` | 桥接报告（核心产出） |
-| 价格扫描（Raw） | `Eyes/投资雷达/Raw_Data/YYYY-MM/` | 价格数据 |
-| 更新：状态机 | `持仓与关注/` | P4 + 价格 |
-| 更新：单标的知识库 | `持仓与关注/{位置}/名称_TICKER/` | P4 增量 |
+| 投资雷达报告 | `data/reports/radar/YYYY-MM/` | 桥接报告（核心产出） |
+| 价格扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 价格数据 |
+| 更新：状态机 | `data/state/` | P4 + 价格 |
+| 更新：单标的知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/` | P4 增量 |
 
 ---
 
@@ -227,16 +227,16 @@ python3 Eyes/scripts/price_scan_from_state.py \
 
 | 内容 | 路径 |
 |:---|:---|
-| 价格扫描脚本 | `Eyes/scripts/price_scan_from_state.py` |
-| 价格路由脚本 | `Eyes/scripts/fetch_price_router.py` |
-| Finnhub 价格 | `Eyes/scripts/fetch_price_api.py` |
-| Yahoo 价格 | `Eyes/scripts/fetch_price_yahoo.py` |
-| Tushare 价格 | `Eyes/scripts/fetch_price_tushare.py` |
-| 当前策略 | `持仓与关注/当前关注方向与投资偏好.md` |
-| 持仓状态机 | `持仓与关注/持仓_状态机.md` |
-| Watchlist 状态机 | `持仓与关注/Watchlist_状态机.md` |
-| 市场洞察归档 | `Eyes/市场洞察/YYYY-MM/` |
-| 投资雷达归档 | `Eyes/投资雷达/YYYY-MM/` |
+| 价格扫描脚本 | `cli/`（`ymos price-scan`） |
+| 价格路由脚本 | `cli/`（`ymos price-scan`） |
+| Finnhub 价格 | `cli/`（`ymos price-scan`，自动路由） |
+| Yahoo 价格 | `cli/`（`ymos price-scan`，自动路由） |
+| Tushare 价格 | `cli/`（`ymos price-scan`，自动路由） |
+| 当前策略 | `data/state/preferences.md` |
+| 持仓状态机 | `data/state/holdings.md` |
+| Watchlist 状态机 | `data/state/watchlist.md` |
+| 市场洞察归档 | `data/reports/market-insight/YYYY-MM/` |
+| 投资雷达归档 | `data/reports/radar/YYYY-MM/` |
 | P 提示词目录 | `skills/<skill>/prompts/` 或 `skills/ymos-core/prompts/` |
 
 ---
@@ -256,4 +256,4 @@ python3 Eyes/scripts/price_scan_from_state.py \
 
 ---
 
-*SOP 版本：2026-03-18 · YMOS V3 三模块制（Eyes / Brain / 持仓与关注）*
+*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*

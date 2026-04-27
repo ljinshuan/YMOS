@@ -18,7 +18,7 @@
 | "更新TSLA和NVDA过去两周" | scope=[TSLA, NVDA], period=2w |
 
 **参数：**
-- `scope`：单个 ticker / 多个 ticker / "watchlist"（自动读取 `持仓与关注/Watchlist_状态机.md`）
+- `scope`：单个 ticker / 多个 ticker / "watchlist"（自动读取 `data/Watchlist_状态机.md`）
 - `period`：1d / 1w / 2w / 1m，默认 1w
 
 ---
@@ -27,14 +27,14 @@
 
 ```
 Step 1：确定标的清单
-  - scope=watchlist → 读取 `持仓与关注/Watchlist_状态机.md` 的 Ticker 列
+  - scope=watchlist → 读取 `data/Watchlist_状态机.md` 的 Ticker 列
   - scope=ticker(s) → 直接使用指定标的
 
 Step 2：对每个标的，加载分析上下文
   优先读取：
-  - `持仓与关注/动态Watchlist/{名称_TICKER}/个股基础知识库.md`
-  - `持仓与关注/动态Watchlist/{名称_TICKER}/买入卖出备忘录.md`（若存在）
-  - `持仓与关注/当前关注方向与投资偏好.md`
+  - `data/动态Watchlist/{名称_TICKER}/个股基础知识库.md`
+  - `data/动态Watchlist/{名称_TICKER}/买入卖出备忘录.md`（若存在）
+  - `data/当前关注方向与投资偏好.md`
   并结合 P4 雷达框架（skills/ymos-research/prompts/p4-radar.md）提取：
   - 北极星指标及预警阈值
   - 叙事框架（当前叙事 + 强化/弱化信号清单）
@@ -108,7 +108,7 @@ Step 5：生成输出
 [指标]：[当前值] [是否触发预警]
 ```
 
-### Watchlist 汇总报告（scope=watchlist 时额外输出，写入 `Eyes/投资雷达/YYYY-MM/`）
+### Watchlist 汇总报告（scope=watchlist 时额外输出，写入 `data/reports/radar/YYYY-MM/`）
 
 ```markdown
 # Watchlist 周报 · [date]
