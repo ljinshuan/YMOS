@@ -16,8 +16,8 @@ description: |
 
 自动检测逻辑（每次新会话）：
 1. `data/当前关注方向与投资偏好.md` 是否有实质内容
-2. `data/持仓_状态机.md` 是否有持仓行
-3. `data/Watchlist_状态机.md` 是否有关注行
+2. `data/state/holdings.md` 是否有持仓行
+3. `data/state/watchlist.md` 是否有关注行
 
 三者全空 → 完整引导；投资偏好为空 → 优先补全；仅缺持仓/Watchlist → 提示补全。
 
@@ -33,9 +33,9 @@ description: |
 
 ## 产出物
 - `data/当前关注方向与投资偏好.md`（用户确认后写入）
-- `data/持仓_状态机.md`（新增持仓行）
-- `data/Watchlist_状态机.md`（新增关注行）
-- 各标的文件夹（`data/{持仓,动态Watchlist}/名称_TICKER/`）
+- `data/state/holdings.md`（新增持仓行）
+- `data/state/watchlist.md`（新增关注行）
+- 各标的文件夹（`data/{stocks/holdings,stocks/watchlist}/名称_TICKER/`）
 
 ## 边界
 - 不做市场分析、不做策略推荐

@@ -20,22 +20,22 @@ Information flows: skills trigger workflows → data stores state → cli fetche
 
 ## Running Scripts
 
-Python 3.12+ with typer+rich. `ymos` CLI auto-loads `.env`.
+**项目使用 uv 管理虚拟环境。** 执行 Python/CLI 命令前必须通过 `uv run` 进入正确的虚拟环境。示例：`uv run ymos ...`、`uv run python ...`。不要直接调用 `python` 或裸 `ymos`，除非已确认在 uv 虚拟环境内（`.venv`）。
 
 ```bash
 # Price scan
-ymos price-scan --symbols AAPL,NIO,688008.SS,0700.HK --output-dir data/reports/radar/raw --date-tag 20260426
+uv run ymos price-scan --symbols AAPL,NIO,688008.SS,0700.HK --output-dir data/reports/radar/raw --date-tag 20260426
 
 # Price scan from state
-ymos price-scan --from-state
+uv run ymos price-scan --from-state
 
 # RSS fetch
-ymos fetch-rss --days 1
+uv run ymos fetch-rss --days 1
 
 # State operations
-ymos state read holdings
-ymos state update holdings --ticker AAPL --field P4 --value "测试中"
-ymos state validate
+uv run ymos state read holdings
+uv run ymos state update holdings --ticker AAPL --field P4 --value "测试中"
+uv run ymos state validate
 ```
 
 ## Key Rules for Editing
