@@ -27,8 +27,8 @@
 
 | 文件 | 用途 |
 |:---|:---|
-| `data/持仓_状态机.md` | 当前持仓状态 |
-| `data/Watchlist_状态机.md` | 当前关注状态 |
+| `data/state/holdings.md` | 当前持仓状态 |
+| `data/state/watchlist.md` | 当前关注状态 |
 | `data/reports/strategy/YYYY-MM/` | 当日策略分析报告（如有） |
 | `data/reports/radar/YYYY-MM/` | 当日投资雷达报告（如有） |
 | 各持仓标的的 `买入卖出备忘录.md` | 最新操作记录 |

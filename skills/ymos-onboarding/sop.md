@@ -22,8 +22,8 @@
 Agent 在会话开始时执行以下检测：
 
 1. `data/当前关注方向与投资偏好.md` — 是否有实质内容（不只是模板）
-2. `data/持仓_状态机.md` — 是否有持仓行
-3. `data/Watchlist_状态机.md` — 是否有关注行
+2. `data/state/holdings.md` — 是否有持仓行
+3. `data/state/watchlist.md` — 是否有关注行
 
 **判定规则**：
 - 三者全空 → 触发 **完整入职引导**

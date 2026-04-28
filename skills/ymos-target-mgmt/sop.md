@@ -55,14 +55,14 @@ mkdir -p "data/stocks/watchlist/名称_TICKER"
 **Step 3：初始化文档**
 
 从模板创建：
-- `data/_模板_单标的/个股基础知识库_模板.md` → `个股基础知识库.md`
+- `skills/ymos-core/templates/knowledge-base.md` → `个股基础知识库.md`
 - Watchlist 不需要买入卖出备忘录
 
 > 若模板不存在，创建最小骨架文件
 
 **Step 4：写入状态机**
 
-在 `data/Watchlist_状态机.md` 新增一行：
+在 `data/state/watchlist.md` 新增一行：
 - Ticker、名称、市场、加入日期、状态（关注中）
 - P4 摘要和 P2 阶段留空（待初始调研完成后填充）
 
@@ -79,7 +79,7 @@ mkdir -p "data/stocks/watchlist/名称_TICKER"
 
 ```
 ✅ 已关注 [名称]（[TICKER]）
-- 目录：data/动态Watchlist/名称_TICKER/
+- 目录：data/stocks/watchlist/名称_TICKER/
 - 个股基础知识库已初始化
 - Watchlist 状态机已更新
 - [初始调研已完成 / 初始调研将在下次投资雷达中触发]
@@ -101,7 +101,7 @@ mkdir -p "data/stocks/watchlist/名称_TICKER"
 
 **Step 2**：迁移目录
 ```bash
-mv "data/动态Watchlist/名称_TICKER" "data/持仓/名称_TICKER"
+mv "data/stocks/watchlist/名称_TICKER" "data/stocks/holdings/名称_TICKER"
 ```
 
 **Step 3**：初始化买入卖出备忘录
@@ -125,8 +125,8 @@ mv "data/动态Watchlist/名称_TICKER" "data/持仓/名称_TICKER"
 
 **Step 1**：归档目录
 ```bash
-mkdir -p "data/动态Watchlist/_archive"
-mv "data/动态Watchlist/名称_TICKER" "data/动态Watchlist/_archive/名称_TICKER"
+mkdir -p "data/stocks/watchlist/_archive"
+mv "data/stocks/watchlist/名称_TICKER" "data/stocks/watchlist/_archive/名称_TICKER"
 ```
 
 **Step 2**：更新 `Watchlist_状态机.md`（标记「已归档」+ 日期）
@@ -137,7 +137,7 @@ mv "data/动态Watchlist/名称_TICKER" "data/动态Watchlist/_archive/名称_TI
 
 **Step 1**：迁移到 Watchlist
 ```bash
-mv "data/持仓/名称_TICKER" "data/动态Watchlist/名称_TICKER"
+mv "data/stocks/holdings/名称_TICKER" "data/stocks/watchlist/名称_TICKER"
 ```
 
 **Step 2**：更新状态机
@@ -147,7 +147,7 @@ mv "data/持仓/名称_TICKER" "data/动态Watchlist/名称_TICKER"
 **Step 3**：在 `买入卖出备忘录.md` 追加清仓记录
 
 **Step 4**：生成复盘提醒
-- 在 `data/投资复盘/` 下创建 `YYYY-MM-DD_TICKER_清仓复盘.md`
+- 在 `data/reports/strategy/` 下创建 `YYYY-MM-DD_TICKER_清仓复盘.md`
 
 ---
 
@@ -157,7 +157,7 @@ mv "data/持仓/名称_TICKER" "data/动态Watchlist/名称_TICKER"
 |:---|:---|:---|
 | 个股基础知识库 | `data/{位置}/名称_TICKER/个股基础知识库.md` | 关注时初始化 |
 | 买入卖出备忘录 | `data/持仓/名称_TICKER/买入卖出备忘录.md` | 建仓时初始化 |
-| 状态机 | `data/Watchlist_状态机.md` / `持仓_状态机.md` | 每次更新 |
+| 状态机 | `data/state/watchlist.md` / `data/state/holdings.md` | 每次更新 |
 
 ---
 
@@ -167,8 +167,8 @@ mv "data/持仓/名称_TICKER" "data/动态Watchlist/名称_TICKER"
 |:---|:---|
 | 初始调研 SOP | `skills/ymos-research/sop.md` |
 | P 提示词目录 | `skills/<skill>/prompts/` 或 `skills/ymos-core/prompts/` |
-| 模板 | `data/_模板_单标的/` |
-| 状态机 | `data/Watchlist_状态机.md` / `持仓_状态机.md` |
+| 模板 | `skills/ymos-core/templates/` |
+| 状态机 | `data/state/watchlist.md` / `data/state/holdings.md` |
 
 ---
 
