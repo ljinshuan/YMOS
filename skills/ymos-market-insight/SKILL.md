@@ -31,6 +31,7 @@ description: |
    - 补充 RSS（需 `cli/config/rss_sources_custom.json` 存在）
 4. **调用 P13 分析**（`prompts/p13-market-scanner.md`）
    - 输出硬约束：市场体温 + 战略简报 + 五维度详情 + 机会与风险 + 后续方向 + 页脚声明
+   - **地缘政治增强**：当日新闻命中地缘政治关键词域时，在"市场风向"维度末尾追加"地缘政治信号"section。详见 `skills/ymos-core/templates/geopolitical-analysis.md` 的触发条件与输出格式
 5. **保存报告** → `data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`
 
 ## 产出物
