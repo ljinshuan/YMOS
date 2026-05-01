@@ -9,7 +9,7 @@ app = typer.Typer(
 )
 
 # Register command groups
-from cli.commands import price, rss, market, news, state, init, report, migrate
+from cli.commands import price, rss, market, news, state, init, report, migrate, tech
 
 app.add_typer(price.app, name="price-scan")
 app.add_typer(rss.app, name="fetch-rss")
@@ -19,6 +19,7 @@ app.add_typer(state.app, name="state")
 app.add_typer(init.app, name="init")
 app.add_typer(report.app, name="report")
 app.add_typer(migrate.app, name="migrate")
+app.add_typer(tech.app, name="tech-analysis")
 
 
 if __name__ == "__main__":
