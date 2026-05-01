@@ -5,7 +5,35 @@
 
 ---
 
-## 0) 通用前置
+## 0) 智能路由（意图分类层）
+
+用户输入先进入意图分类层，再路由到具体 Skill。
+
+```
+用户输入
+  ├── 命中触发词？ ──是──→ 直达对应 Skill（跳过分类）
+  └── 否 ──→ intent-classifier.md 分类 → 8 种意图 → 路由表 → Skill 链路
+```
+
+**8 种意图 → Skill 映射：**
+
+| 意图 | 路由目标 | 提示词 |
+|:---|:---|:---|
+| `market-overview` | ymos-market-insight | CIO + P13 |
+| `investment-radar` | ymos-radar | 价格扫描 + 7天趋势 |
+| `stock-research` | ymos-research | P1 → P4 → P2 |
+| `buy-entry` | ymos-strategy Route A/B | P2 → P9 → P5 → P12 |
+| `hold-evaluate` | ymos-strategy Route C | P2 → P6 → P12 |
+| `sell-reduce` | ymos-strategy Route D | P2 → P6 → P10 → P12 |
+| `portfolio-mgmt` | ymos-strategy Route E + reconcile | P7 / 一致性校验 |
+| `system-ops` | onboarding / target-mgmt / diagnosis | 按 SOP 执行 |
+
+**复合意图：** 多意图自动拆分为有序任务列表，按逻辑依赖排序（调研 → 策略 → 管理）。
+详见 `skills/ymos-core/prompts/intent-classifier.md`。
+
+---
+
+## 1) 通用前置
 
 执行策略前必须确认：
 1. 已读取 `个股基础知识库.md`
@@ -16,7 +44,7 @@
 
 ---
 
-## 1) 市场扫描入口
+## 2) 市场扫描入口
 
 | 暗号 | SOP | 提示词 | 写回 |
 |:---|:---|:---|:---|
@@ -26,7 +54,7 @@
 
 ---
 
-## 2) Watchlist 分流（目标：建仓机会）
+## 3) Watchlist 分流（目标：建仓机会）
 
 | 触发 | Skill 链路 | 提示词顺序 | 写回 |
 |:---|:---|:---|:---|
@@ -36,7 +64,7 @@
 
 ---
 
-## 3) 持仓分流（目标：加仓/持有/卖出）
+## 4) 持仓分流（目标：加仓/持有/卖出）
 
 | 触发 | Skill 链路 | 提示词顺序 | 写回 |
 |:---|:---|:---|:---|
@@ -46,18 +74,19 @@
 
 ---
 
-## 4) 人工意图直达
+## 5) 人工意图直达
 
 | 暗号 | SOP | 提示词 | 写回 |
 |:---|:---|:---|:---|
 | `调研一下 [股票]` | `skills/ymos-research/sop.md` | P1 → P4（可加 P9） | 标的`个股基础知识库.md` |
+| `大师会诊 [股票]` | `skills/ymos-research/sop.md` | P1 → P4 → P18 → P2 | 标的`个股基础知识库.md`（含大师会诊章节） |
 | `我想买 [股票]` | `skills/ymos-strategy/sop.md` | P2 → P9 → P5/P10 → P12 | 标的`买入卖出备忘录.md` + `data/reports/strategy/` |
 | `我想卖 [股票]` | `skills/ymos-strategy/sop.md` | P2 → P6/P10 → P12 | 标的`买入卖出备忘录.md` + `data/reports/strategy/` |
 | `复盘一下` | `skills/ymos-strategy/sop.md` | P11（个股）/ P7（组合） | `data/reports/strategy/` |
 
 ---
 
-## 5) 策略分析五大路由（详细版）
+## 6) 策略分析五大路由（详细版）
 
 > 完整 SOP 见 `skills/ymos-strategy/sop.md`
 > 进入任何路由前必须完成四项强制前置校验（P2 / 个股知识库 / 备忘录 / 当前策略）
@@ -72,7 +101,7 @@
 
 ---
 
-## 6) 标的管理
+## 7) 标的管理
 
 | 暗号 | SOP | 动作 | 写回 |
 |:---|:---|:---|:---|
@@ -83,7 +112,7 @@
 
 ---
 
-## 7) 输出格式建议（每次）
+## 8) 输出格式建议（每次）
 
 1. 一句话结论
 2. 动作建议（优先级）
