@@ -27,7 +27,7 @@ description: |
    - 回退：`ymos fetch-rss`（RSS 免费数据源）
    - RSS 路径需额外执行 CIO 半成品处理（`prompts/cio-rss-processor.md`）
 3. **补充数据源**（可选，有 key/config 才执行）
-   - `ymos fetch-news`（Finnhub 个股新闻，需 `FINNHUB_API_KEY`，仅持仓美股/Crypto）
+   - `ymos fetch-news`（多源新闻：Finnhub + Futu 兜底，覆盖美股/Crypto/港股/A股）
    - 补充 RSS（需 `cli/config/rss_sources_custom.json` 存在）
 4. **调用 P13 分析**（`prompts/p13-market-scanner.md`）
    - 输出硬约束：市场体温 + 战略简报 + 五维度详情 + 机会与风险 + 后续方向 + 页脚声明

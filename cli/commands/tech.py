@@ -61,6 +61,7 @@ def analyze(
     symbols: str = typer.Option("", help="Comma-separated tickers"),
     from_state: bool = typer.Option(False, help="Read tickers from state machines"),
     output_dir: str = typer.Option("", help="Output directory for reports"),
+    source: str = typer.Option("auto", help="Data source: auto, futu, yahoo, tushare"),
 ):
     """Run technical analysis and generate reports."""
     load_dotenv()
@@ -89,7 +90,19 @@ def analyze(
     typer.echo(f"📊 Running tech analysis for {len(tickers)} tickers: {', '.join(tickers)}")
 
     tushare_token = os.getenv("TUSHARE_TOKEN", "")
-    history = fetch_history(tickers, tushare_token)
+
+    if source not in ("auto", "futu", "yahoo", "tushare"):
+        typer.echo(f"❌ Unknown source: {source}. Use auto, futu, yahoo, or tushare")
+        raise typer.Exit(code=1)
+
+    if source == "futu":
+        from cli.core.futu_utils import check_opend_connection, OPEND_STARTUP_GUIDE
+        if not check_opend_connection():
+            typer.echo("❌ Futu OpenD not reachable but --source futu was specified")
+            typer.echo(OPEND_STARTUP_GUIDE)
+            raise typer.Exit(code=1)
+
+    history = fetch_history(tickers, tushare_token, source=source)
 
     if not history:
         typer.echo("❌ No historical data fetched for any ticker")

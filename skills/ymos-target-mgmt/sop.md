@@ -30,124 +30,25 @@
 
 ### 动作 A：关注（新增 Watchlist + 触发初始调研）
 
-**Step 1：确认标的信息 + 自动补全 Ticker 后缀**
-
-- 解析 ticker（如 `NVDA`、`腾讯`、`BTC`、`688048`）
-- 确认市场（US/A股/H股/Crypto）
-- 确定目录名格式：`名称_TICKER`
-
-**A股/港股 Ticker 后缀自动识别规则**：
-
-| 代码特征 | 交易所 | Yahoo 后缀 | 示例 |
-|:---|:---|:---|:---|
-| 6位数字，`6` 开头 | 上交所 | `.SS` | `688981` → `688981.SS` |
-| 6位数字，`0` 或 `3` 开头 | 深交所 | `.SZ` | `300274` → `300274.SZ` |
-| 4-5位数字（港股） | 港交所 | `.HK` | `700` → `0700.HK` |
-| 纯英文字母（美股） | NYSE/NASDAQ | 无后缀 | `NVDA` |
-| Crypto | 去中心化 | 无后缀 | `BTC` |
-
-**Step 2：创建文档目录**
-
-```bash
-mkdir -p "data/stocks/watchlist/名称_TICKER"
-```
-
-**Step 3：初始化文档**
-
-从模板创建：
-- `skills/ymos-core/templates/knowledge-base.md` → `个股基础知识库.md`
-- Watchlist 不需要买入卖出备忘录
-
-> 若模板不存在，创建最小骨架文件
-
-**Step 4：写入状态机**
-
-在 `data/state/watchlist.md` 新增一行：
-- Ticker、名称、市场、加入日期、状态（关注中）
-- P4 摘要和 P2 阶段留空（待初始调研完成后填充）
-
-**Step 5：触发初始调研（智能切换）**
-
-| 场景 | 行为 |
-|:---|:---|
-| 单个关注（`关注 NVDA`） | 询问用户：「是否现在跑初始调研？」→ 是则同步调用 `skills/ymos-research/sop.md`，否则异步 |
-| 批量关注（一次多个标的） | 第一个询问，其余异步（投资雷达下次会建议调研） |
-
-> 异步 = 投资雷达报告的「调研建议」区块会捕获未建档标的，自然形成调研触发。
-
-**Step 6：在对话中确认**
-
-```
-✅ 已关注 [名称]（[TICKER]）
-- 目录：data/stocks/watchlist/名称_TICKER/
-- 个股基础知识库已初始化
-- Watchlist 状态机已更新
-- [初始调研已完成 / 初始调研将在下次投资雷达中触发]
-
-💡 下一步建议：
-- 如需立即调研 → 说「调研一下 [TICKER]」
-```
+> 详细执行步骤见 `sop/action-a-watch.md`
 
 ---
 
 ### 动作 B：建仓（Watchlist → 持仓）
 
-**前置**：标的必须已在 Watchlist 中，且 P1+P4+P2 已完成
-
-**Step 1**：检查前置
-- 确认 `动态Watchlist/名称_TICKER/个股基础知识库.md` 存在且有 P1+P4+P2
-- **若标的不在 Watchlist**：自动先执行「动作 A：关注」完整流程
-- **若缺少 P1/P4/P2**：调用 `skills/ymos-research/sop.md` 补跑
-
-**Step 2**：迁移目录
-```bash
-mv "data/stocks/watchlist/名称_TICKER" "data/stocks/holdings/名称_TICKER"
-```
-
-**Step 3**：初始化买入卖出备忘录
-- 从模板创建 `买入卖出备忘录.md`（持仓才需要）
-
-**Step 4**：更新状态机
-- `Watchlist_状态机.md`：移除或标记「已建仓」
-- `持仓_状态机.md`：新增，状态「持仓中」
-
-**Step 5**：确认
-```
-✅ [名称]（[TICKER]）已从 Watchlist 升级为持仓
-- 目录：data/持仓/名称_TICKER/
-- 买入卖出备忘录已初始化
-- 下一步：建议执行「我想买 TICKER」进入策略分析
-```
+> 详细执行步骤见 `sop/action-b-position.md`
 
 ---
 
 ### 动作 C：移除关注（Watchlist → 归档）
 
-**Step 1**：归档目录
-```bash
-mkdir -p "data/stocks/watchlist/_archive"
-mv "data/stocks/watchlist/名称_TICKER" "data/stocks/watchlist/_archive/名称_TICKER"
-```
-
-**Step 2**：更新 `Watchlist_状态机.md`（标记「已归档」+ 日期）
+> 详细执行步骤见 `sop/action-c-remove.md`
 
 ---
 
 ### 动作 D：清仓（持仓 → Watchlist 保留观察）
 
-**Step 1**：迁移到 Watchlist
-```bash
-mv "data/stocks/holdings/名称_TICKER" "data/stocks/watchlist/名称_TICKER"
-```
-
-**Step 2**：更新状态机
-- `持仓_状态机.md`：移除或标记「已清仓」
-- `Watchlist_状态机.md`：新增，状态「观察中（已清仓）」
-
-**Step 3**：在 `买入卖出备忘录.md` 追加清仓记录
-
-**Step 4**：生成复盘提醒
-- 在 `data/reports/strategy/` 下创建 `YYYY-MM-DD_TICKER_清仓复盘.md`
+> 详细执行步骤见 `sop/action-d-liquidate.md`
 
 ---
 

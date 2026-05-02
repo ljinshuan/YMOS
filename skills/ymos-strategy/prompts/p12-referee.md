@@ -6,6 +6,7 @@
 - 根目录：`YMOS/`
 - 主数据目录：`data/stocks/`
 - 前置读取：`个股基础知识库.md` + `买入卖出备忘录.md` + `P2结论`
+- 可选读取：`data/reports/radar/raw/` 中的资金流数据（非阻塞）
 - 写回：标的 `买入卖出备忘录.md` 与对应状态机
 
 ## 适用场景
@@ -25,6 +26,7 @@
 2. **Current Strategy:** {{strategy}}
 3. **Intended Action:** {{action}}
 4. **Reasoning:** {{reasoning}}
+5. **Capital Flow (Optional):** {{capital_flow_data}}
 
 # The Code (Rulebook Violation Scan)
 *请逐条扫描以下禁忌，寻找违规项：*
@@ -92,6 +94,13 @@
 * **投资表现：** "我研究了这家公司三个月，不能白费"；"我已经亏了这么多，现在卖就全亏了"；"越跌越买摊低成本"。
 * **自检问题：** "如果我从未持有过这只股票，也没有花过任何时间研究它，我现在会以当前价格买入吗？"
 
+## 📊 六、资金流辅助确认 (Capital Flow Confirmation)
+*(仅当 Context 中有资金流数据时执行，无数据时跳过并标注"资金流数据缺失")*
+
+* **正向确认：** 主力资金连续 3 日以上净流入 → 记为「资金面确认：主力资金连续净流入」
+* **反向警告：** 主力资金连续净流出或单日大单净流出显著 → 记为「资金面警告：主力资金持续流出」
+* **重要原则：** 资金流是辅助信号，不作为独立裁决依据。正向/反向信号仅影响裁决信心度，不改变裁决结果。
+
 # Output Format (The Verdict)
 
 请输出一份简短有力的 **裁决书**：
@@ -125,6 +134,7 @@
 | `strategy` | 当前策略（SOP 1 核心仓/SOP 2 卫星仓） | 是 |
 | `action` | 打算做什么 | 是 |
 | `reasoning` | 为什么想这么做 | 是 |
+| `capital_flow_data` | 资金流异动数据（可选，来自 `ymos fetch-capital-flow`） | 否 |
 
 ## 禁忌清单速查
 

@@ -9,13 +9,24 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from cli.core.crypto import normalize_for_source
+from cli.core.futu_utils import check_opend_connection
 from cli.core.router import classify
 from cli.core.sources import tushare
 from cli.core.sources.yahoo import _SSL_CTX
 
 
-def fetch_history(symbols: list[str], tushare_token: str = "") -> dict[str, pd.DataFrame]:
+def fetch_history(
+    symbols: list[str],
+    tushare_token: str = "",
+    source: str = "auto",
+) -> dict[str, pd.DataFrame]:
     """Fetch historical OHLCV data for multiple symbols.
+
+    Args:
+        symbols: List of ticker symbols.
+        tushare_token: Tushare API token.
+        source: Data source — "auto" (try Futu first, fall back to Tushare/Yahoo),
+                "futu", "yahoo", or "tushare".
 
     Returns {symbol: DataFrame} with columns: open, high, low, close, volume (float64).
     DatetimeIndex is timezone-naive dates, sorted ascending. ~1 year of daily data.
@@ -25,20 +36,55 @@ def fetch_history(symbols: list[str], tushare_token: str = "") -> dict[str, pd.D
     end_date = datetime.now(timezone.utc)
     start_date = end_date - timedelta(days=400)
 
+    # Determine Futu reachability once
+    futu_reachable = False
+    if source in ("auto", "futu"):
+        futu_reachable = check_opend_connection()
+
     for symbol in symbols:
         try:
-            source = classify(symbol)
-            if source == "tushare":
-                df = _fetch_tushare_history(symbol, start_date, end_date, tushare_token)
-            else:
+            df = None
+
+            if source == "futu":
+                if not futu_reachable:
+                    print(f"⚠️  Futu OpenD not reachable, cannot fetch {symbol}")
+                    return {}
+                df = _fetch_futu_history(symbol)
+
+            elif source == "yahoo":
                 norm_symbol = normalize_for_source(symbol, "yahoo")
                 df = _fetch_yahoo_history(norm_symbol)
+
+            elif source == "tushare":
+                df = _fetch_tushare_history(symbol, start_date, end_date, tushare_token)
+
+            else:  # auto
+                if futu_reachable:
+                    df = _fetch_futu_history(symbol)
+                if df is None:
+                    src = classify(symbol)
+                    if src == "tushare":
+                        df = _fetch_tushare_history(symbol, start_date, end_date, tushare_token)
+                    else:
+                        norm_symbol = normalize_for_source(symbol, "yahoo")
+                        df = _fetch_yahoo_history(norm_symbol)
+
             if df is not None and not df.empty:
                 results[symbol] = df
         except Exception as e:
             print(f"⚠️  Failed to fetch history for {symbol}: {e}")
 
     return results
+
+
+def _fetch_futu_history(symbol: str) -> pd.DataFrame | None:
+    """Fetch daily history from Futu OpenD via get_history_kline."""
+    try:
+        from cli.core.sources.futu import fetch_futu_history
+        return fetch_futu_history(symbol)
+    except Exception as e:
+        print(f"⚠️  Futu fetch failed for {symbol}: {e}")
+        return None
 
 
 def _fetch_tushare_history(symbol: str, start_date: datetime,

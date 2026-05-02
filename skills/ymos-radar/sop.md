@@ -72,7 +72,8 @@ mkdir -p "data/reports/radar/raw/$(date +%Y-%m)" \
          "data/reports/radar/$(date +%Y-%m)"
 
 ymos price-scan scan --from-state \
-  --output "data/reports/radar/raw/$(date +%Y-%m)/price_scan_$(date +%Y%m%d).json"
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)" \
+  --date-tag "$(date +%Y%m%d)"
 ```
 
 > **价格路由规则（三源分流）**：
@@ -83,125 +84,88 @@ ymos price-scan scan --from-state \
 > | 港股（.HK） | Yahoo Finance | 免费 |
 > | 兜底（无 Key） | Yahoo Finance | 所有市场回退 |
 
+### Step 4.5：资金流扫描
+
+**只扫持仓 + Watchlist，复用价格扫描的 ticker 列表**
+
+```bash
+ymos fetch-capital-flow fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_financial_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：资金分布（主力/散户）、经纪商买卖活动、资金流趋势（多日）、卖空量与比率
+> **可选过滤**：`--dimensions funds_distribution funds_broker short_sell_number short_sell_ratio`
+
+**P20 资金异动分析**：
+
+对每个标的的资金流数据，使用 P20 prompt 进行异动信号检测：
+```
+skills/ymos-radar/prompts/p20-capital-anomaly.md
+```
+
+P20 输出包含：
+- 三维度异动信号（资金分布 / 资金流向 / 卖空情况）
+- 信号强度评级（strong / moderate / weak）
+- Tier 评级调整建议
+- P4 重点关注点更新建议
+
+> **资金流不可用时**：跳过此步骤（非阻塞），在报告中标注「资金流数据缺失」。
+
+### Step 4.6：技术面异动扫描
+
+**只扫持仓 + Watchlist，复用 ticker 列表**
+
+```bash
+ymos fetch-technical-anomaly fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_technical_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：K 线形态识别 + 14 种技术指标异常（MACD / RSI / KDJ / CCI / BOLL / MA 等）
+> **可选过滤**：`--indicators MACD RSI6 RSI12 RSI24`
+
+输出每个标的的技术面异常信号，包含：日期、指标名称、信号方向、支撑/压力位。
+
+> **技术面数据不可用时**：跳过此步骤（非阻塞），在报告中标注「技术面数据不可用（OpenD 未连接）」。
+
+### Step 4.7：衍生品异动扫描
+
+**只扫持仓 + Watchlist，复用 ticker 列表**
+
+```bash
+ymos fetch-derivatives-anomaly fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_derivative_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：
+> - 港股：牛熊证街货比例/价格区间异动 + 期权五维信号（大单/波动率/量价/情绪/综合）
+> - 非港股：仅期权五维信号（牛熊证维度自动跳过）
+> **可选过滤**：`--dimensions option_unusual option_volatility option_sentiment`
+
+输出每个标的的衍生品异常信号，按维度分组。
+
+> **衍生品数据不可用时**：跳过此步骤（非阻塞），在报告中标注「衍生品数据不可用（OpenD 未连接）」。
+
 ### Step 5：综合分析
 
-综合 Step 1-4 所有输入，生成桥接报告：
+> 详细分析流程见 `sop/analysis-and-triggers.md`
 
-**5.1 市场趋势回顾（7天）**
-- 主线演变：一致性强化/弱化判断
-- 趋势验证：逻辑链条是否闭合
-- 新兴主题 vs 衰退主题
-
-**5.2 持仓动态**
-- 价格变化 + 对应事件
-- 是否触发监控价位（止盈/止损）
-- P4 关注点更新（根据最新信号增量更新）
-
-**5.3 Watchlist 动态**
-- 价格变化 + 对应事件
-- 是否出现建仓机会信号
-
-**5.4 机会与风险信号**
-- 从趋势 + 事件中提炼可行动信号
-
-**5.5 下一步建议（统一承载）⭐**
-
-> 这是雷达的核心输出 — 同时覆盖策略分析建议 + 调研建议
-
-**A. 策略分析建议**（哪些标的值得跑策略分析）：
-
-| 触发条件 | 标的类型 | 建议路由 |
-|:---|:---|:---|
-| 持仓止盈/止损触发 | 持仓 | `建议跑 持有怎么看 TICKER` |
-| 持仓日涨跌≥10% | 持仓 | `建议跑 持有怎么看 TICKER` |
-| 重大事件冲击持仓 | 持仓 | `建议跑 持有怎么看 TICKER` |
-| P2 阶段恶化 | 持仓 | `建议跑 持有怎么看 TICKER` |
-| Watchlist 三条件达标（beta↑ + 估值合理 + 基本面正面） | Watchlist | `建议跑 我想买 TICKER` |
-| 财报事件 | 持仓 + Watchlist | `建议跑 持有怎么看/调研一下 TICKER` |
-| 重大宏观事件 | 全部 | `建议跑 做个仓位再平衡` |
-
-**B. 调研建议**（哪些标的需要跑/补初始调研）：
-
-| 条件 | 建议 |
-|:---|:---|
-| 标的缺少 P1/P4/P2 | `建议跑 调研一下 TICKER` |
-| 标的信息过期（>30天未更新） | `建议跑 调研一下 TICKER` |
-| 新关注但未建档 | `建议跑 调研一下 TICKER` |
-
-**C. 新机会发现**（基于市场趋势 + 用户偏好，主动发现值得关注的新方向）：
-
-> 读取 `data/state/preferences.md`，结合当日市场洞察的趋势信号，
-> 识别**用户偏好范围内但尚未持仓/关注的机会方向**。
-
-| 条件 | 输出 |
-|:---|:---|
-| 市场洞察出现与用户偏好板块/主题高度相关的新趋势 | 提示「值得关注：[方向/板块]，原因：[信号摘要]」 |
-| 多个独立信号收敛指向同一个用户偏好范围内的新机会 | 提示「主题收敛：[方向]，建议进一步调研」 |
-| 市场洞察中的深度基石报告涉及用户偏好领域 | 提示「值得深度查看：[报告主题]」 |
-
-**注意**：
-- 新机会发现**不直接建议买入**，只提示「值得关注/调研的方向」
-- 与用户偏好无关的趋势不在此列（已在市场洞察中覆盖）
-- 输出在雷达报告的「下一步建议」中单独列为「新机会方向」小节
-
-> **关键原则**：
-> - 雷达只说「建议跑哪个暗号」，不说「你应该买/卖」
-> - 持仓统一走 `持有怎么看` → 策略分析内部判断具体动作
-> - Watchlist 建议 `我想买` 需三条件同时满足
+综合 Step 1-4.7 所有输入，执行信号分析和分流。
 
 ### Step 6：触发分流（AI 自主分析）
 
-> 对被触发的标的，AI 自动跑分析链。普通事件不触发（市场洞察已包含影响说明），仅重大事件触发。
-
-| 触发类型 | 适用范围 | AI 自主分析链 |
-|:---|:---|:---|
-| 重大事件触发 | 持仓 | P3（事件冲击，含价格维度） → P15（深度洞察） → 更新 P4 |
-| 重大事件触发 | Watchlist | P15（深度洞察） → 更新 P4 |
-| 财报事件 | 持仓 + Watchlist | P16（财报分析） → P2（阶段重判） |
-| 重大宏观事件 | 持仓 + Watchlist | P8（宏观过滤） → P2（阶段重判） |
-| 价格触发（日涨跌≥10%） | 持仓 | P2（阶段重判） → P9（估值更新） |
-
-**分析产出写回**：
-- 各标的 `个股基础知识库.md` 对应区块
-- 状态机 `P4重点关注点` 列
-- 如触发了策略路由 → 对应报告归档到 `data/reports/strategy/`
+> 详细触发规则和分析链见 `sop/analysis-and-triggers.md`
 
 ### Step 7：生成投资雷达报告
 
+> 完整报告模板见 `sop/report-template.md`
+
 **输出路径**：`data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
-
-**报告结构**：
-```markdown
-# 投资雷达 - YYYY-MM-DD
-
-## 📊 市场趋势回顾（过去 7 天）
-（主线演变 / 一致性判断 / 逻辑验证 / 新兴 vs 衰退主题）
-
-## 🔄 信号演变追踪
-### 持续强化信号
-| 板块 | 上期状态 | 本期状态 | 演变 |
-### 新出现信号
-### 待验证信号
-
-## 📈 持仓监控
-| 标的 | 现价 | 涨跌 | 成本 | 监控位 | 状态 | 事件 |
-（P4 关注点更新摘要）
-
-## 👁️ Watchlist 动态
-| 标的 | 现价 | 涨跌 | 事件 | 机会信号 |
-
-## 🤖 AI 自主分析产出
-（本次自动执行的 P 链及结论摘要）
-
-## 🔭 下一步建议
-### 策略分析建议（需 Human 确认后执行）
-| 标的 | 触发原因 | 建议暗号 |
-### 调研建议
-| 标的 | 原因 | 建议暗号 |
-### 待人工补充项
-（AI 搜索无法获取的信息 / 需人工判断的决策点）
-```
-
 **命名规则**：`投资雷达_YYYY-MM-DD.md`（同一天重跑覆盖，不加后缀）
 
 ### Step 8：写回状态机
@@ -218,6 +182,7 @@ ymos price-scan scan --from-state \
 |:---|:---|:---|
 | 投资雷达报告 | `data/reports/radar/YYYY-MM/` | 桥接报告（核心产出） |
 | 价格扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 价格数据 |
+| 资金流扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 资金异动数据 |
 | 更新：状态机 | `data/state/` | P4 + 价格 |
 | 更新：单标的知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/` | P4 增量 |
 

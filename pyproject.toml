@@ -11,6 +11,8 @@ dependencies = [
     "requests>=2.33.1",
     "pandas>=2.0",
     "pandas-ta>=0.3.14b",
+    "futu>=0.0.1",
+    "futu-api>=10.4.6408",
 ]
 
 [project.scripts]
@@ -21,3 +23,8 @@ package = true
 
 [tool.setuptools.packages.find]
 include = ["cli*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

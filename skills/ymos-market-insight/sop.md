@@ -36,69 +36,9 @@ mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 
 ### Step 2：拉取市场数据（自动回退）
 
-**方式 A：市场信息 API（优先）**
-```bash
-ymos fetch-market fetch --days 1 \
-  --output "data/reports/market-insight/raw/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
-```
+> 详细数据拉取流程和回退策略见 `sop/data-loading.md`
 
-> 脚本会自动加载 `.env` 中的 `YMOS_MARKET_API_KEY`。无 key 时脚本以 exit(0) 退出并提示使用 RSS。
-
-**方式 B：RSS 免费数据源（回退 / 无 API Key 时使用）**
-```bash
-ymos fetch-rss fetch --days 1 \
-  --output "data/reports/market-insight/raw/$(date +%Y-%m)/financial_data_$(date +%Y%m%d).json"
-```
-
-**Agent 执行规则**：
-1. 先尝试方式 A
-2. 若方式 A 的脚本输出包含"跳过 API 数据源"或未生成输出文件 → 自动回退到方式 B
-3. 用户指定天数时，把 `1` 替换为对应天数
-
-### Step 2.5：CIO 半成品处理（仅 RSS 路径需要）
-
-> **仅当 Step 2 使用了方式 B（RSS）时执行此步。**
-> API 路径（方式 A）的数据已经过清洗和分类，跳过此步。
-
-读取 Step 2 生成的 RSS 原始 JSON，调用：
-- `prompts/cio-rss-processor.md`
-
-CIO 处理器会执行：去重合并 → 噪音过滤 → 事件聚类 → 信号提取
-
-**输出路径**：`data/reports/market-insight/raw/YYYY-MM/cio_processed_YYYYMMDD.md`
-
-### Step 2.6：拉取 Finnhub 持仓个股新闻（补充数据源，可选）
-
-> **仅当 `.env` 或环境变量中存在 `FINNHUB_API_KEY` 时执行。无 key 则静默跳过。**
-
-```bash
-ymos fetch-news fetch \
-  --hours 24 \
-  --output "data/reports/market-insight/raw/$(date +%Y-%m)/finnhub_news_$(date +%Y%m%d).json"
-```
-
-**策略说明**：
-- 只对【持仓状态机】中的美股/Crypto 标的调用 `/company-news` 接口
-- Watchlist 不拉个股新闻（节省 rate limit）
-- A股/港股 Ticker 不支持 Finnhub，自动过滤
-
-### Step 2.7：拉取补充 RSS 数据（可选）
-
-> **仅当 `cli/config/rss_sources_custom.json` 存在时执行。无此文件则静默跳过。**
->
-> 补充 RSS 与主数据源（API 或默认 RSS）独立运行，不互斥。
-> 适用场景：用户已有 Market Data API，但还想订阅特定行业/深度分析的 RSS 源。
-
-```bash
-ymos fetch-rss fetch {天数} \
-  --config cli/config/rss_sources_custom.json \
-  --output "data/reports/market-insight/raw/$(date +%Y-%m)/supplementary_rss_$(date +%Y%m%d).json"
-```
-
-**Agent 执行规则**：
-1. 检查 `cli/config/rss_sources_custom.json` 是否存在
-2. 存在 → 执行拉取，输出为 `supplementary_rss_YYYYMMDD.json`
-3. 不存在 → 静默跳过，不提示用户
+多源数据拉取：CIO 洞察 API → RSS 兜底，个股新闻（Finnhub + Futu），补充 RSS。
 
 ### Step 3：调用 P13 分析
 

@@ -24,6 +24,7 @@ description: |
 | ymos-target-mgmt | `关注 XX` / `建仓 XX` | ticker + 名称 + 位置 |
 | ymos-strategy | 策略路由发现缺 P1/P4 | ticker + 位置 |
 | ymos-radar | 雷达建议调研的标的 | ticker + 名称 + 位置 |
+| ymos-screener | 筛选结果中选择调研 | ticker 列表（批量） |
 
 ## 执行步骤
 > 详细步骤见 sop.md
