@@ -155,10 +155,11 @@ AI 的能力已经强到可以做一些不一样的事了。
 
 AI 会启动入职引导（`ymos-onboarding`），一步步跟你对话完成：
 
-1. **填写投资偏好**（最核心）— 9 个维度访谈，写入 `data/state/preferences.md`
-2. **添加你的持仓** — 初始化持仓状态机 + 个股文件夹
-3. **添加你的关注** — 建立 Watchlist + 个股文件夹
-4. **跑第一轮** — 体验一次完整闭环
+1. **检测 Futu OpenD**（可选）— 如果你在用富途证券，可自动导入真实持仓
+2. **填写投资偏好**（最核心）— 9 个维度访谈，写入 `data/state/preferences.md`
+3. **添加你的持仓** — Futu 在线时自动导入，否则手动录入
+4. **添加你的关注** — 建立 Watchlist + 个股文件夹
+5. **跑第一轮** — 体验一次完整闭环
 
 > 整个过程约 10-15 分钟。完成后系统就是个性化的了。
 
@@ -213,9 +214,32 @@ YMOS 开箱即用，不需要任何 API Key：
 | Level 0（零配置） | 无需 API Key | RSS + Yahoo Finance |
 | Level 1 | `FINNHUB_API_KEY`（免费注册） | +美股/Crypto 实时报价和新闻 |
 | Level 1+ | `TUSHARE_TOKEN`（免费注册） | +A股实时行情 |
+| Level 1.5 | **Futu OpenD**（本地安装） | +真实持仓导入 + 交易记录 + 资金异动 + 选股筛选 + 情绪分析 |
 | Level 2 | `YMOS_MARKET_API_*` | +结构化市场事件 API |
 
-将 `.env.example` 重命名为 `.env`，填入 API Key 即可。
+将 `.env.example` 重命名为 `.env`，填入 API Key 即可。Futu OpenD 无需 API Key，只需本地运行富途 OpenD 网关。
+
+#### Futu OpenD：解锁 Broker 级能力
+
+如果你使用**富途证券**（支持港股/A股/美股），安装 Futu OpenD 后 YMOS 能力大幅增强：
+
+| 命令 | 能力 | 说明 |
+|:---|:---|:---|
+| `ymos position fetch` | 真实持仓 | 自动导入持仓到状态机，省去手动录入 |
+| `ymos trade-history fetch` | 交易记录 | P12 纪律审查引用实际交易行为，检测追涨杀跌等偏误 |
+| `ymos fetch-sentiment` | 个股情绪 | 评论情绪分析，辅助策略判断 |
+| `ymos fetch-capital-flow` | 资金异动 | 投资雷达中的资金流信号 |
+| `ymos screen` | 选股筛选 | 按市场/条件筛选标的 |
+| `ymos fetch-technical-anomaly` | 技术异动 | 技术面异常信号检测 |
+| `ymos fetch-derivatives-anomaly` | 衍生品异动 | 期权/期货异动检测 |
+
+**安装方式**：
+1. 前往 [FutunnOpen/py-futu-api/releases](https://github.com/FutunnOpen/py-futu-api/releases) 下载对应平台版本
+2. 解压后运行 `FutuOpenD`，扫码登录富途账户
+3. 默认监听 `127.0.0.1:11111`，无需额外配置
+4. 验证：`uv run ymos position fetch` — 返回持仓即配置成功
+
+> Futu OpenD 离线时所有相关命令自动跳过，**不影响 YMOS 核心功能**。不用富途也没关系，YMOS 仍可完整运行。
 
 ---
 
@@ -232,13 +256,14 @@ YMOS 开箱即用，不需要任何 API Key：
 **做什么**：系统冷启动，引导新用户完成个性化配置。
 
 **执行流程**：
-1. 自动检测已有数据（偏好/持仓/关注），判断需要补什么
-2. **投资偏好深度访谈**（最核心）— 9 个维度结构化访谈：
+1. **Futu OpenD 检测**（可选）— 尝试连接，在线则可自动导入真实持仓
+2. 自动检测已有数据（偏好/持仓/关注），判断需要补什么
+3. **投资偏好深度访谈**（最核心）— 9 个维度结构化访谈：
    - 投资者画像 / 仓位配置框架 / 仓位管理参数 / 策略立场 / 关注方向 / Watchlist 偏好 / 执行纪律 / 禁忌 / 核心心法
    - 写入前必须将完整内容展示给用户确认
-3. 当前持仓录入 — 调用 `ymos-target-mgmt` 的建仓流程
-4. 关注清单录入 — 调用 `ymos-target-mgmt` 的关注流程
-5. 引导跑第一轮（市场洞察 → 投资雷达）
+4. 当前持仓录入 — Futu 在线时自动导入；否则手动录入，调用 `ymos-target-mgmt` 的建仓流程
+5. 关注清单录入 — 调用 `ymos-target-mgmt` 的关注流程
+6. 引导跑第一轮（市场洞察 → 投资雷达）
 
 **产出物**：
 - `data/state/preferences.md` — 用户投资偏好
@@ -545,6 +570,18 @@ ymos fetch-rss --days 1                         # RSS 多源抓取
 ymos fetch-market                               # 市场事件 API
 ymos fetch-news                                 # 持仓个股新闻
 
+# Futu OpenD 能力（需本地运行 Futu OpenD）
+ymos position fetch                             # 获取真实持仓
+ymos trade-history fetch --days 30              # 获取交易记录（默认30天）
+ymos fetch-sentiment --ticker AAPL              # 个股评论情绪
+ymos fetch-capital-flow fetch --ticker 0700.HK  # 资金异动
+ymos screen --market HK --filter ...            # 选股筛选
+ymos fetch-technical-anomaly --ticker AAPL      # 技术异动
+ymos fetch-derivatives-anomaly --ticker AAPL    # 衍生品异动
+
+# 技术分析
+ymos tech-analysis analyze --ticker AAPL        # 技术指标分析（auto/futu/yahoo/tushare）
+
 # 状态机操作
 ymos state read holdings                        # 读取持仓状态机
 ymos state read watchlist                       # 读取关注状态机
@@ -812,4 +849,4 @@ YMOS 的核心价值不在代码量，而在投资思路的结构化。欢迎把
 
 ---
 
-*YMOS V4.0 · 2026-04-27 · Skills 能力层架构*
+*YMOS V4.1 · 2026-05-02 · Skills 能力层架构 + Futu OpenD 集成*
