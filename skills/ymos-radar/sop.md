@@ -83,9 +83,54 @@ ymos price-scan scan --from-state \
 > | 港股（.HK） | Yahoo Finance | 免费 |
 > | 兜底（无 Key） | Yahoo Finance | 所有市场回退 |
 
+### Step 4.5：资金流扫描
+
+**只扫持仓 + Watchlist，复用价格扫描的 ticker 列表**
+
+```bash
+ymos fetch-capital-flow --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_financial_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：资金分布（主力/散户）、经纪商买卖活动、资金流趋势（多日）、卖空量与比率
+
+**P20 资金异动分析**：
+
+对每个标的的资金流数据，使用 P20 prompt 进行异动信号检测：
+```
+skills/ymos-radar/prompts/p20-capital-anomaly.md
+```
+
+P20 输出包含：
+- 三维度异动信号（资金分布 / 资金流向 / 卖空情况）
+- 信号强度评级（strong / moderate / weak）
+- Tier 评级调整建议
+- P4 重点关注点更新建议
+
+> **资金流不可用时**：跳过此步骤（非阻塞），在报告中标注「资金流数据缺失」。
+
 ### Step 5：综合分析
 
-综合 Step 1-4 所有输入，生成桥接报告：
+综合 Step 1-4.5 所有输入，生成桥接报告：
+
+**5.0 情绪极端值检测（可选）**
+
+若存在 `data/reports/sentiment/` 中的最新情绪报告：
+- 检测极端看多（bullish > 80%）→ 在持仓监控中标注 Tier 1 预警「市场情绪极度乐观，注意反向风险」
+- 检测极端看空（bearish > 70%）→ 标注 Tier 2 备注「市场情绪极度悲观，可能存在逆向机会」
+- 无情绪数据时跳过此步骤（非阻塞）
+
+**5.0.5 资金异动信号整合（可选）**
+
+若 Step 4.5 资金流扫描成功执行，将 P20 输出整合进评级体系：
+- **Tier 1 加分**：主力连续 3 日净流入 + 机构席位买入验证 → 提升事件评级权重
+- **Tier 1 警告**：单日大单净流出 > 流通市值 1% → 在持仓监控中标注资金面预警
+- **Tier 1 警告**：卖空量价同时异动 → 标注空头压力
+- **Tier 2 备注**：资金流向与价格背离 → 标注趋势反转可能
+- 无显著异动 → 不调整
+- 资金流数据缺失 → 跳过，在报告中标注
 
 **5.1 市场趋势回顾（7天）**
 - 主线演变：一致性强化/弱化判断
@@ -183,6 +228,10 @@ ymos price-scan scan --from-state \
 ### 新出现信号
 ### 待验证信号
 
+## 💰 资金流扫描
+| 标的 | 资金分布信号 | 资金流向信号 | 卖空信号 | 综合强度 | Tier 调整 |
+（P20 分析产出摘要）
+
 ## 📈 持仓监控
 | 标的 | 现价 | 涨跌 | 成本 | 监控位 | 状态 | 事件 |
 （P4 关注点更新摘要）
@@ -218,6 +267,7 @@ ymos price-scan scan --from-state \
 |:---|:---|:---|
 | 投资雷达报告 | `data/reports/radar/YYYY-MM/` | 桥接报告（核心产出） |
 | 价格扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 价格数据 |
+| 资金流扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 资金异动数据 |
 | 更新：状态机 | `data/state/` | P4 + 价格 |
 | 更新：单标的知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/` | P4 增量 |
 

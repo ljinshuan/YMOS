@@ -49,8 +49,10 @@
 | 暗号 | SOP | 提示词 | 写回 |
 |:---|:---|:---|:---|
 | `跑一下市场洞察` | `skills/ymos-market-insight/sop.md` | CIO + P13（+ P14 按需） | `data/reports/market-insight/YYYY-MM/` |
-| `跑一下投资雷达` | `skills/ymos-radar/sop.md` | 7天趋势 + 价格扫描 + Finnhub新闻 | `data/reports/radar/YYYY-MM/` + 状态机 |
+| `跑一下投资雷达` | `skills/ymos-radar/sop.md` | 7天趋势 + 价格扫描 + 资金流扫描 + Finnhub新闻 | `data/reports/radar/YYYY-MM/` + 状态机 |
 | `查一下价格` | `skills/ymos-radar/sop.md`（子流程） | Finnhub/Tushare/Yahoo 价格路由 | `data/reports/radar/raw/YYYY-MM/` |
+| `查一下资金流` | `skills/ymos-radar/sop.md`（子流程） | P20 资金异动分析 | `data/reports/radar/raw/YYYY-MM/` |
+| `有什么资金异动` | `skills/ymos-radar/sop.md`（子流程） | P20 资金异动分析 | `data/reports/radar/raw/YYYY-MM/` |
 
 ---
 
@@ -112,7 +114,54 @@
 
 ---
 
-## 8) 输出格式建议（每次）
+## 8) 情绪分析入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `看一下 [ticker] 的情绪` | `skills/ymos-sentiment/sop.md` | P19（评论情绪分析） | `data/reports/sentiment/YYYY-MM/` |
+| `[ticker] 多空怎么样` | `skills/ymos-sentiment/sop.md` | P19 | `data/reports/sentiment/YYYY-MM/` |
+| `分析一下市场情绪` | `skills/ymos-sentiment/sop.md`（全持仓模式） | P19 × N | `data/reports/sentiment/YYYY-MM/` |
+| `看一下情绪` | 同上 | P19 × N | 同上 |
+
+**情绪数据与策略/雷达的关系：**
+- ymos-strategy：P5（FOMO Killer）和 P12（纪律审查）可引用情绪数据作为辅助维度（非阻塞）
+- ymos-radar：信号检测环节可检测极端情绪（bullish > 80% 或 bearish > 70%）作为预警信号
+
+---
+
+## 8.5) 资金流入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `查一下资金流` | `skills/ymos-radar/sop.md`（资金流子流程） | P20（资金异动分析） | `data/reports/radar/raw/YYYY-MM/` + P4 更新 |
+| `有什么资金异动` | `skills/ymos-radar/sop.md`（资金流子流程） | P20 | 同上 |
+
+**资金流数据与策略/雷达的关系：**
+- ymos-radar：Step 4.5 资金流扫描 → P20 分析 → 异动信号纳入 Tier 1/Tier 2 事件评级
+- ymos-strategy：Route A/B 中 P12（纪律审查）可引用资金流数据作为辅助确认维度（非阻塞）
+- 数据源：`ymos fetch-capital-flow`（富途 OpenD `get_financial_unusual`）
+- 前置条件：本地需运行 Futu OpenD（localhost:11111），未运行时跳过（非阻塞）
+
+---
+
+## 9) 选股筛选入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `帮我选股` | `skills/ymos-screener/sop.md` | 预设模板或自定义筛选 | `data/reports/screener/YYYY-MM/` |
+| `筛选一下 [市场]` | `skills/ymos-screener/sop.md` | 按市场筛选 | 同上 |
+| `找一下 [类型]股` | `skills/ymos-screener/sop.md` | 按类型（成长/价值/高息/动量）筛选 | 同上 |
+| `选股` | `skills/ymos-screener/sop.md` | 交互式选股 | 同上 |
+
+**筛选 → 调研衔接**：
+- 用户从筛选结果中选择标的 → `调研一下 [ticker]` → ymos-research P1→P4→P2
+- 调研完成后 → 建议通过 `关注 [ticker]` 加入 Watchlist
+- 数据源：`ymos screen`（富途 OpenD `get_stock_filter`）
+- 前置条件：本地需运行 Futu OpenD（localhost:11111），未运行时提示启动
+
+---
+
+## 10) 输出格式建议（每次）
 
 1. 一句话结论
 2. 动作建议（优先级）

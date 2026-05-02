@@ -9,9 +9,11 @@ description: |
 # ymos-radar：投资雷达
 
 ## 触发
-- `跑一下投资雷达` — 完整流程（7 天趋势 + 价格扫描 + 信号追踪 + 桥接报告）
+- `跑一下投资雷达` — 完整流程（7 天趋势 + 价格扫描 + 资金流扫描 + 信号追踪 + 桥接报告）
 - `查一下价格` — 只跑价格扫描
 - `看看有什么信号` — 只做信号演变扫描
+- `查一下资金流` — 只跑资金流扫描 + P20 异动分析
+- `有什么资金异动` — 同上
 
 ## 前置条件
 - **自动依赖 ymos-market-insight**：若当日洞察不存在，先自动触发 `跑一下市场洞察`
@@ -29,14 +31,22 @@ description: |
    ymos price-scan --from-state
    ```
    - 三源分流：美股/Crypto → Finnhub，A 股 → Tushare，港股 → Yahoo，兜底 → Yahoo
-5. **综合分析** — 市场趋势回顾 + 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
-6. **触发分流**（AI 自主分析）— 重大事件/财报/宏观事件触发对应 P 链
-7. **生成投资雷达报告** → `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
-8. **写回状态机** — P4 更新 + 价格更新
+5. **资金流扫描**（复用 ticker 列表，非阻塞）
+   ```
+   ymos fetch-capital-flow --from-state
+   ```
+   - 数据源：富途 OpenD `get_financial_unusual`
+   - P20 资金异动分析：信号检测 + 强度评级 + Tier 调整建议
+   - OpenD 未运行时跳过，不阻塞雷达流程
+6. **综合分析** — 市场趋势回顾 + 资金异动信号 + 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
+7. **触发分流**（AI 自主分析）— 重大事件/财报/宏观事件触发对应 P 链
+8. **生成投资雷达报告** → `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
+9. **写回状态机** — P4 更新 + 价格更新 + 资金异动信号更新
 
 ## 产出物
 - `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）
 - `data/reports/radar/raw/YYYY-MM/price_scan_YYYYMMDD.json`（价格数据）
+- `data/reports/radar/raw/YYYY-MM/capital_flow_YYYYMMDD.json`（资金流数据，可选）
 - 状态机更新（P4 + 价格）
 - 个股知识库 P4 增量更新
 

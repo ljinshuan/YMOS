@@ -5,7 +5,7 @@
 
 ---
 
-## 8 种意图定义
+## 11 种意图定义
 
 | ID | 意图 | 典型表达 | 路由目标 |
 |:---|:---|:---|:---|
@@ -16,6 +16,9 @@
 | `hold-evaluate` | 持有评估 | "AAPL还拿着吗"、"现在持有怎么看" | ymos-strategy Route C (P2→P6→P12) |
 | `sell-reduce` | 卖出/减仓 | "想卖NIO"、"要不要减仓"、"止损吧" | ymos-strategy Route D (P2→P6→P10→P12) |
 | `portfolio-mgmt` | 组合管理 | "做个再平衡"、"仓位怎么调"、"收口一下" | ymos-strategy Route E (P7) + ymos-reconcile |
+| `sentiment-check` | 情绪分析 | "看一下NVDA的情绪"、"NVDA多空怎么样"、"分析一下市场情绪" | ymos-sentiment (P19) |
+| `capital-flow` | 资金流 | "查一下资金流"、"有什么资金异动"、"主力在干什么" | ymos-radar 资金流子流程 (P20) |
+| `stock-screening` | 选股筛选 | "帮我选股"、"筛选一下港股"、"找一下成长股" | ymos-screener |
 | `system-ops` | 系统操作 | "开始使用"、"关注AAPL"、"清仓NIO"、"诊断一下" | ymos-onboarding / ymos-target-mgmt / ymos-diagnosis |
 
 ---
@@ -32,6 +35,9 @@ buy-entry       → ymos-strategy                            → P2 → P9 → P
 hold-evaluate   → ymos-strategy                            → P2 → P6 → P12          → 标的 买入卖出备忘录.md
 sell-reduce     → ymos-strategy                            → P2 → P6 → P10 → P12    → 标的 买入卖出备忘录.md
 portfolio-mgmt  → ymos-strategy + ymos-reconcile           → P7 / 一致性校验          → data/reports/strategy/
+sentiment-check → ymos-sentiment                           → P19 评论情绪分析         → data/reports/sentiment/
+capital-flow    → ymos-radar (资金流子流程)                  → P20 资金异动分析         → data/reports/radar/raw/
+stock-screening → ymos-screener                             → 预设/自定义筛选          → data/reports/screener/
 system-ops      → ymos-onboarding / target-mgmt / diagnosis → 按 SOP 执行             → 对应状态机
 ```
 
@@ -86,7 +92,10 @@ system-ops      → ymos-onboarding / target-mgmt / diagnosis → 按 SOP 执行
 5. hold-evaluate — 持有评估/拿着怎么看
 6. sell-reduce — 卖出/减仓/止损
 7. portfolio-mgmt — 组合管理/再平衡/收口
-8. system-ops — 系统操作（关注/建仓/清仓/初始化/诊断）
+8. sentiment-check — 情绪分析/多空看法/市场情绪
+9. capital-flow — 资金流/资金异动/主力行为
+10. stock-screening — 选股/筛选/找股票
+11. system-ops — 系统操作（关注/建仓/清仓/初始化/诊断）
 
 规则：
 - 提取 ticker（股票代码）
