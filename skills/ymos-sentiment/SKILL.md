@@ -29,7 +29,7 @@ description: |
 > 详细步骤见 sop.md
 
 1. 解析触发词，提取 ticker 列表（单票/多票/全持仓）
-2. 运行 `ymos fetch-sentiment --ticker TICKER` 或 `--from-state` 获取评论数据
+2. 运行 `ymos fetch-sentiment fetch --ticker TICKER` 或 `fetch --from-state` 获取评论数据
 3. 读取 P19 prompt（`prompts/p19-comment-sentiment.md`），将评论数据喂给 LLM 做情绪分析
 4. 输出情绪分析报告，保存到 `data/reports/sentiment/YYYY-MM/情绪分析_YYYY-MM-DD.md`
 5. 若检测到极端情绪（bullish > 80% 或 bearish > 70%），在报告中标注预警

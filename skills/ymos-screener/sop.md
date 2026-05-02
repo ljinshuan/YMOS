@@ -63,7 +63,7 @@
 
 **自定义条件**：
 - 用户以自然语言描述条件 → AI 解析为筛选参数
-- 生成 JSON 配置 → `ymos screen --market MARKET --config <path>`
+- 生成 JSON 配置 → `ymos screen screen --market MARKET --config <path>`
 
 ### Step 3：执行筛选
 

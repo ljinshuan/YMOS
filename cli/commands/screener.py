@@ -5,23 +5,14 @@ from __future__ import annotations
 import datetime as dt
 import json
 import os
-import socket
 from pathlib import Path
 
 import typer
 
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection
 from cli.utils.env_loader import load_dotenv
 
 app = typer.Typer(help="Stock screening via Futu OpenD")
-
-OPEND_STARTUP_GUIDE = """
-Futu OpenD 未运行或不可连接。请按以下步骤操作：
-
-1. 打开富途牛牛客户端（或独立的 FutuOpenD）
-2. 确保菜单「更多 → Futu OpenD」已开启，监听端口 11111
-3. 如端口被修改，设置环境变量 FUTU_OPEND_PORT=端口号
-4. 等待 OpenD 状态变为「已连接」后重试
-"""
 
 PRESETS = {
     "growth": {
@@ -81,14 +72,6 @@ FIELD_NAME_MAP = {
     "CHANGE_RATE": "涨幅",
     "TURNOVER_RATE": "换手率",
 }
-
-
-def _check_opend_connection(host: str = "127.0.0.1", port: int = 11111) -> bool:
-    try:
-        with socket.create_connection((host, port), timeout=3):
-            return True
-    except (ConnectionRefusedError, OSError, TimeoutError):
-        return False
 
 
 def _market_to_futu(market: str) -> str:
@@ -265,7 +248,7 @@ def screen_cmd(
 
     host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
     port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-    if not _check_opend_connection(host, port):
+    if not check_opend_connection(host, port):
         typer.echo(f"❌ 无法连接 Futu OpenD ({host}:{port})")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)

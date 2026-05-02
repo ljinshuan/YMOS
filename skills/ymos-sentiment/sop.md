@@ -5,7 +5,7 @@
 1. 解析 ticker（如 "看一下 NVDA 的情绪" → ticker = NVDA）
 2. 运行 CLI 获取数据：
    ```bash
-   uv run ymos fetch-sentiment --ticker NVDA
+   uv run ymos fetch-sentiment fetch --ticker NVDA
    ```
 3. 读取输出的 JSON 文件，提取评论列表
 4. 读取 `skills/ymos-sentiment/prompts/p19-comment-sentiment.md`
@@ -16,7 +16,7 @@
 ## 场景 B：多只股票情绪对比
 
 1. 解析多个 ticker（如 "看一下腾讯、苹果、比亚迪的情绪" → [0700.HK, AAPL, BYD]）
-2. 逐个运行 `uv run ymos fetch-sentiment --ticker TICKER`
+2. 逐个运行 `uv run ymos fetch-sentiment fetch --ticker TICKER`
 3. 对每只股票分别运行 P19 prompt 分析
 4. 输出对比表格：
 
@@ -30,7 +30,7 @@
 1. 读取 `data/state/holdings.md` 和 `data/state/watchlist.md` 提取所有 ticker
 2. 运行批量获取：
    ```bash
-   uv run ymos fetch-sentiment --from-state
+   uv run ymos fetch-sentiment fetch --from-state
    ```
 3. 对每个 ticker 的评论数据运行 P19 分析
 4. 按情绪极端程度排序（最看多 → 最看空）

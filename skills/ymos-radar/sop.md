@@ -72,7 +72,8 @@ mkdir -p "data/reports/radar/raw/$(date +%Y-%m)" \
          "data/reports/radar/$(date +%Y-%m)"
 
 ymos price-scan scan --from-state \
-  --output "data/reports/radar/raw/$(date +%Y-%m)/price_scan_$(date +%Y%m%d).json"
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)" \
+  --date-tag "$(date +%Y%m%d)"
 ```
 
 > **价格路由规则（三源分流）**：
@@ -88,13 +89,14 @@ ymos price-scan scan --from-state \
 **只扫持仓 + Watchlist，复用价格扫描的 ticker 列表**
 
 ```bash
-ymos fetch-capital-flow --from-state \
+ymos fetch-capital-flow fetch --from-state \
   --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
 ```
 
 > **数据源**：富途 OpenD `get_financial_unusual` API
 > **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
 > **覆盖范围**：资金分布（主力/散户）、经纪商买卖活动、资金流趋势（多日）、卖空量与比率
+> **可选过滤**：`--dimensions funds_distribution funds_broker short_sell_number short_sell_ratio`
 
 **P20 资金异动分析**：
 
@@ -110,6 +112,44 @@ P20 输出包含：
 - P4 重点关注点更新建议
 
 > **资金流不可用时**：跳过此步骤（非阻塞），在报告中标注「资金流数据缺失」。
+
+### Step 4.6：技术面异动扫描
+
+**只扫持仓 + Watchlist，复用 ticker 列表**
+
+```bash
+ymos fetch-technical-anomaly fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_technical_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：K 线形态识别 + 14 种技术指标异常（MACD / RSI / KDJ / CCI / BOLL / MA 等）
+> **可选过滤**：`--indicators MACD RSI6 RSI12 RSI24`
+
+输出每个标的的技术面异常信号，包含：日期、指标名称、信号方向、支撑/压力位。
+
+> **技术面数据不可用时**：跳过此步骤（非阻塞），在报告中标注「技术面数据不可用（OpenD 未连接）」。
+
+### Step 4.7：衍生品异动扫描
+
+**只扫持仓 + Watchlist，复用 ticker 列表**
+
+```bash
+ymos fetch-derivatives-anomaly fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+> **数据源**：富途 OpenD `get_derivative_unusual` API
+> **前置条件**：本地需运行 Futu OpenD 客户端（localhost:11111）
+> **覆盖范围**：
+> - 港股：牛熊证街货比例/价格区间异动 + 期权五维信号（大单/波动率/量价/情绪/综合）
+> - 非港股：仅期权五维信号（牛熊证维度自动跳过）
+> **可选过滤**：`--dimensions option_unusual option_volatility option_sentiment`
+
+输出每个标的的衍生品异常信号，按维度分组。
+
+> **衍生品数据不可用时**：跳过此步骤（非阻塞），在报告中标注「衍生品数据不可用（OpenD 未连接）」。
 
 ### Step 5：综合分析
 
@@ -141,6 +181,7 @@ P20 输出包含：
 - 价格变化 + 对应事件
 - 是否触发监控价位（止盈/止损）
 - P4 关注点更新（根据最新信号增量更新）
+- **可选**：若 `ymos position fetch` 数据可用，可在持仓监控表中引用真实市值、浮动盈亏（来自 Futu broker），与 price-scan 价格互为验证
 
 **5.3 Watchlist 动态**
 - 价格变化 + 对应事件
@@ -231,6 +272,17 @@ P20 输出包含：
 ## 💰 资金流扫描
 | 标的 | 资金分布信号 | 资金流向信号 | 卖空信号 | 综合强度 | Tier 调整 |
 （P20 分析产出摘要）
+
+## 📊 技术面信号
+| 标的 | 指标 | 信号方向 | 支撑位 | 压力位 | 描述 |
+（Step 4.6 技术面异动扫描产出，无数据时标注「技术面数据不可用（OpenD 未连接）」）
+
+## 🔔 衍生品信号
+### 期权异动
+| 标的 | 维度 | 信号描述 |
+### 牛熊证异动（仅港股）
+| 标的 | 街货比例变化 | 价格区间异动 |
+（Step 4.7 衍生品异动扫描产出，无数据时标注「衍生品数据不可用（OpenD 未连接）」）
 
 ## 📈 持仓监控
 | 标的 | 现价 | 涨跌 | 成本 | 监控位 | 状态 | 事件 |

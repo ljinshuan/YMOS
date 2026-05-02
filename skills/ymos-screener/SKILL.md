@@ -24,7 +24,7 @@ description: |
 
 1. **解析筛选意图** — 确定市场（HK/US/CN）和筛选类型（预设/自定义）
 2. **构建筛选条件** — 加载预设模板或解析自定义条件
-3. **执行筛选** — 调用 `ymos screen --market MARKET --preset PRESET`
+3. **执行筛选** — 调用 `ymos screen screen --market MARKET --preset PRESET`
 4. **展示结果** — 输出候选标的表格
 5. **衔接调研**（可选）— 用户选择感兴趣的标的 → 触发 `调研一下 [ticker]`
 

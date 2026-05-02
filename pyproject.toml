@@ -23,3 +23,8 @@ package = true
 
 [tool.setuptools.packages.find]
 include = ["cli*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

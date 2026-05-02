@@ -41,7 +41,8 @@ uv run ymos state validate
 ## Key Rules for Editing
 
 ### File Permissions
-- **Read-only**: All SOP files (`skills/*/sop.md`), P-series prompts (`skills/*/prompts/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`, `skills/ymos-diagnosis/**`
+- **Read-only**: P-series prompts (`skills/*/prompts/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`, `skills/ymos-diagnosis/**`
+- **Skills 可修改**: SKILL.md、sop.md、routing.md 在主动丰富 skill 能力时可以修改（如新增 CLI 命令引用、新增执行步骤），但不应改变核心业务逻辑
 - **Human-in-the-Loop**: `data/state/preferences.md` — draft changes but require user confirmation before writing
 - **Writable via SOP only**: Reports in `data/reports/market-insight/`, `data/reports/radar/`, `data/reports/strategy/`, state machines, stock knowledge bases
 

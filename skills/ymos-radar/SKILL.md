@@ -28,12 +28,12 @@ description: |
 3. **加载上份投资雷达** — 提取连续跟踪信息
 4. **价格扫描**（只扫状态机 ticker）
    ```
-   ymos price-scan --from-state
+   ymos price-scan scan --from-state
    ```
    - 三源分流：美股/Crypto → Finnhub，A 股 → Tushare，港股 → Yahoo，兜底 → Yahoo
 5. **资金流扫描**（复用 ticker 列表，非阻塞）
    ```
-   ymos fetch-capital-flow --from-state
+   ymos fetch-capital-flow fetch --from-state
    ```
    - 数据源：富途 OpenD `get_financial_unusual`
    - P20 资金异动分析：信号检测 + 强度评级 + Tier 调整建议

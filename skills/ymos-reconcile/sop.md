@@ -35,6 +35,28 @@
 
 ---
 
+## Step 1.5：Futu 真实持仓校验（可选）
+
+> **可选步骤**：Futu OpenD 在线时自动执行，离线时跳过。
+> 目的：用 broker 真实持仓数据校验状态机的一致性。
+
+```bash
+ymos position fetch --output-dir "data/position" --format json
+```
+
+**校验逻辑**：
+1. 读取 `data/position/positions.json` 中的持仓列表
+2. 与 `data/state/holdings.md` 状态机中的 ticker 列表做对比
+3. **差异标注**：
+   - 状态机有但 Futu 无 → 标注"可能已清仓未更新"
+   - Futu 有但状态机无 → 标注"新增持仓未录入"
+   - 数量不一致 → 标注具体差异
+4. 将差异写入缺口清单（Step 3 的缺口清单部分）
+
+> **OpenD 不可用时**：跳过此步骤，在缺口清单中标注"Futu 持仓数据不可用（OpenD 未连接）"
+
+---
+
 ## Step 2：一致性校验
 
 检查策略分析的写回是否已正确反映在状态机中：

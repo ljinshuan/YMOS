@@ -5,44 +5,14 @@ from __future__ import annotations
 import datetime as dt
 import json
 import os
-import socket
 from pathlib import Path
 
 import typer
 
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, ticker_to_futu_symbol
 from cli.utils.env_loader import load_dotenv
 
 app = typer.Typer(help="Fetch capital flow anomaly data via Futu OpenD")
-
-OPEND_STARTUP_GUIDE = """
-Futu OpenD 未运行或不可连接。请按以下步骤操作：
-
-1. 打开富途牛牛客户端（或独立的 FutuOpenD）
-2. 确保菜单「更多 → Futu OpenD」已开启，监听端口 11111
-3. 如端口被修改，设置环境变量 FUTU_OPEND_PORT=端口号
-4. 等待 OpenD 状态变为「已连接」后重试
-"""
-
-
-def _ticker_to_futu_symbol(ticker: str) -> str:
-    """Convert YMOS ticker to Futu standard symbol format.
-
-    YMOS: 0700.HK, AAPL, 688008.SS, 000001.SZ
-    Futu: HK.00700, US.AAPL, SH.688008, SZ.000001
-    """
-    if "." in ticker:
-        base, suffix = ticker.rsplit(".", 1)
-        mapping = {
-            "HK": "HK",
-            "SS": "SH",
-            "SZ": "SZ",
-        }
-        market = mapping.get(suffix.upper(), "US")
-        if market == "HK":
-            return f"HK.{base.zfill(5)}"
-        return f"{market}.{base}"
-    # No suffix → assume US
-    return f"US.{ticker}"
 
 
 def _detect_market(ticker: str) -> str:
@@ -56,13 +26,47 @@ def _detect_market(ticker: str) -> str:
     return "US"
 
 
-def _check_opend_connection(host: str = "127.0.0.1", port: int = 11111) -> bool:
-    """Check if Futu OpenD is reachable on the given host:port."""
-    try:
-        with socket.create_connection((host, port), timeout=3):
-            return True
-    except (ConnectionRefusedError, OSError, TimeoutError):
-        return False
+def _detect_enhanced_anomalies(normalized_data, market: str) -> dict:
+    """Detect short-sell and broker anomalies from raw capital flow data.
+
+    Scans the normalized anomaly items for short-sell and broker patterns.
+    """
+    items = normalized_data if isinstance(normalized_data, list) else []
+    short_sell_anomaly = []
+    broker_anomaly = []
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        dim = (item.get("dimension") or item.get("analysis_dimension", "")).lower()
+
+        # Short sell anomaly detection
+        if "short_sell" in dim or "卖空" in dim:
+            short_sell_anomaly.append({
+                "date": item.get("date", item.get("time_key", "")),
+                "type": dim,
+                "description": item.get("description", item.get("desc", "")),
+                "direction": item.get("signal_direction", item.get("direction", "")),
+                "combined": "short_sell_number" in dim and "short_sell_ratio" in dim
+                or ("数量" in str(item.get("description", "")) and "比例" in str(item.get("description", ""))),
+            })
+
+        # Broker anomaly detection
+        if "broker" in dim or "经纪商" in dim:
+            broker_anomaly.append({
+                "date": item.get("date", item.get("time_key", "")),
+                "description": item.get("description", item.get("desc", "")),
+                "direction": item.get("signal_direction", item.get("direction", "")),
+                "cross_border": any(
+                    kw in str(item.get("description", ""))
+                    for kw in ("沪港通", "深港通", "southbound", "northbound", "Southbound", "Northbound")
+                ),
+            })
+
+    return {
+        "short_sell_anomaly": short_sell_anomaly or None,
+        "broker_anomaly": broker_anomaly or None,
+    }
 
 
 def _normalize_capital_flow(raw_data, market: str) -> dict:
@@ -96,9 +100,23 @@ def _normalize_capital_flow(raw_data, market: str) -> dict:
     }
 
 
-def _fetch_capital_flow(ticker: str, time_range: int = 7, language_id: int = 0) -> dict:
+VALID_DIMENSIONS = [
+    "funds_distribution",
+    "funds_broker",
+    "funds_flow",
+    "short_sell_number",
+    "short_sell_ratio",
+]
+
+
+def _fetch_capital_flow(
+    ticker: str,
+    time_range: int = 7,
+    language_id: int = 0,
+    analysis_dimensions: list[str] | None = None,
+) -> dict:
     """Fetch capital flow anomaly data via Futu OpenD get_financial_unusual."""
-    symbol = _ticker_to_futu_symbol(ticker)
+    symbol = ticker_to_futu_symbol(ticker)
     market = _detect_market(ticker)
     host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
     port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
@@ -111,7 +129,7 @@ def _fetch_capital_flow(ticker: str, time_range: int = 7, language_id: int = 0) 
             ret, data = quote_ctx.get_financial_unusual(
                 symbol,
                 time_range=time_range,
-                analysis_dimensions=None,
+                analysis_dimensions=analysis_dimensions,
                 language_id=language_id,
             )
         finally:
@@ -135,6 +153,7 @@ def _fetch_capital_flow(ticker: str, time_range: int = 7, language_id: int = 0) 
                 normalized = data.to_dict()
 
         normalized_schema = _normalize_capital_flow(normalized, market)
+        enhanced = _detect_enhanced_anomalies(normalized, market)
 
         return {
             "ticker": ticker,
@@ -143,8 +162,10 @@ def _fetch_capital_flow(ticker: str, time_range: int = 7, language_id: int = 0) 
             "source": "futu_opend",
             "method": "get_financial_unusual",
             "time_range": time_range,
+            "analysis_dimensions": analysis_dimensions or [],
             "fetched_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             **normalized_schema,
+            **enhanced,
         }
     except ImportError:
         return {
@@ -187,13 +208,16 @@ def fetch(
     from_state: bool = typer.Option(False, help="Read tickers from state machines"),
     output_dir: str = typer.Option("", help="Output directory for JSON results"),
     time_range: int = typer.Option(7, help="Time range in days (default 7)"),
+    dimensions: list[str] = typer.Option(None, help="Filter to specific dimensions (funds_distribution, funds_broker, funds_flow, short_sell_number, short_sell_ratio)"),
 ):
     """Fetch capital flow anomaly data from Futu OpenD."""
     load_dotenv()
 
+    analysis_dimensions = dimensions if dimensions else None
+
     host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
     port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-    if not _check_opend_connection(host, port):
+    if not check_opend_connection(host, port):
         typer.echo(f"❌ 无法连接 Futu OpenD ({host}:{port})")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)
@@ -213,9 +237,9 @@ def fetch(
 
     results = []
     for t in tickers:
-        futu_sym = _ticker_to_futu_symbol(t)
+        futu_sym = ticker_to_futu_symbol(t)
         typer.echo(f"  → {t} ({futu_sym})...", nl=False)
-        result = _fetch_capital_flow(t, time_range=time_range)
+        result = _fetch_capital_flow(t, time_range=time_range, analysis_dimensions=analysis_dimensions)
         results.append(result)
         if result.get("error"):
             typer.echo(f" ❌ {result['error']}")

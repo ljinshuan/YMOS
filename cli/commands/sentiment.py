@@ -17,23 +17,18 @@ FUTU_USER_AGENT = "futunn-comment-sentiment/0.0.2 (Skill)"
 
 
 def _ticker_to_keyword(ticker: str) -> str:
-    """Convert YMOS ticker format to Futu search keyword.
-
-    YMOS: 0700.HK, AAPL, 688008.SS
-    Futu prefers: 00700, AAPL, company names, short tickers
-    """
+    """Convert YMOS ticker format to Futu search keyword."""
     if "." in ticker:
         base, suffix = ticker.rsplit(".", 1)
         if suffix == "HK":
-            return base.zfill(5)  # 0700 → 00700
-        return base  # AAPL (no suffix issues for US)
+            return base.zfill(5)
+        return base
     return ticker
 
 
 def _fetch_feed(ticker: str, size: int = 30) -> dict:
     """Fetch community feed posts for a single ticker via Futu search API."""
     import requests
-    from urllib.parse import quote
 
     keyword = _ticker_to_keyword(ticker)
     try:
@@ -75,6 +70,7 @@ def _fetch_feed(ticker: str, size: int = 30) -> dict:
                 })
             return {
                 "ticker": ticker,
+                "status": "ok",
                 "source": "futu_stock_feed",
                 "fetched_at": dt.datetime.now(dt.timezone.utc).isoformat(),
                 "post_count": len(posts),
@@ -82,6 +78,7 @@ def _fetch_feed(ticker: str, size: int = 30) -> dict:
             }
         return {
             "ticker": ticker,
+            "status": "empty",
             "source": "futu_stock_feed",
             "fetched_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "post_count": 0,
@@ -89,15 +86,97 @@ def _fetch_feed(ticker: str, size: int = 30) -> dict:
             "raw_code": body.get("code"),
             "raw_message": body.get("message", ""),
         }
-    except requests.RequestException as e:
+    except Exception as e:
         return {
             "ticker": ticker,
+            "status": "error",
             "source": "none",
             "error": f"Network error: {e}",
             "fetched_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "post_count": 0,
             "data": [],
         }
+
+
+def _compute_group_aggregation(symbols: list[dict]) -> dict | None:
+    """Compute group-level sentiment aggregation across multiple symbols.
+
+    Returns None if only one symbol (single mode).
+    """
+    if len(symbols) < 2:
+        return None
+
+    total_posts = sum(s.get("post_count", 0) for s in symbols)
+    if total_posts == 0:
+        return {
+            "label": "neutral",
+            "bull_pct": "0%",
+            "bear_pct": "0%",
+            "neutral_pct": "0%",
+            "post_count": 0,
+            "summary": "所有标的均无社区数据",
+        }
+
+    # Sum percentages weighted by post count
+    weighted_bull = sum(
+        float(s.get("bull_pct", "0%").rstrip("%")) * s.get("post_count", 0)
+        for s in symbols
+    )
+    weighted_bear = sum(
+        float(s.get("bear_pct", "0%").rstrip("%")) * s.get("post_count", 0)
+        for s in symbols
+    )
+    weighted_neutral = sum(
+        float(s.get("neutral_pct", "0%").rstrip("%")) * s.get("post_count", 0)
+        for s in symbols
+    )
+
+    bull_pct = round(weighted_bull / total_posts, 1) if total_posts else 0
+    bear_pct = round(weighted_bear / total_posts, 1) if total_posts else 0
+    neutral_pct = round(weighted_neutral / total_posts, 1) if total_posts else 0
+
+    # Determine group label
+    label = _determine_label(bull_pct, bear_pct, neutral_pct)
+
+    # Find driving symbols
+    driving = []
+    for s in symbols:
+        s_bull = float(s.get("bull_pct", "0%").rstrip("%"))
+        s_bear = float(s.get("bear_pct", "0%").rstrip("%"))
+        if abs(s_bull - bull_pct) > 15 or abs(s_bear - bear_pct) > 15:
+            driving.append(s.get("ticker", ""))
+
+    return {
+        "label": label,
+        "bull_pct": f"{bull_pct:.1f}%",
+        "bear_pct": f"{bear_pct:.1f}%",
+        "neutral_pct": f"{neutral_pct:.1f}%",
+        "post_count": total_posts,
+        "summary": f"Overall sentiment is {label}.",
+        "driving_symbols": driving or None,
+    }
+
+
+def _determine_label(bull_pct: float, bear_pct: float, neutral_pct: float) -> str:
+    """Determine aggregate sentiment label with mixed rule.
+
+    Priority: clear dominance > mixed > neutral.
+    """
+    # Clear dominance: one side is significantly larger
+    diff = abs(bull_pct - bear_pct)
+    if bull_pct > bear_pct and diff >= 15:
+        return "bullish"
+    if bear_pct > bull_pct and diff >= 15:
+        return "bearish"
+    # Mixed: both sides meaningful and close
+    if bull_pct >= 25 and bear_pct >= 25 and diff < 15:
+        return "mixed"
+    # Dominant but not large enough gap
+    if bull_pct > bear_pct and bull_pct > neutral_pct:
+        return "bullish"
+    if bear_pct > bull_pct and bear_pct > neutral_pct:
+        return "bearish"
+    return "neutral"
 
 
 def _read_tickers_from_state() -> list[str]:
@@ -126,7 +205,11 @@ def fetch(
 
     tickers: list[str] = []
     if ticker:
-        tickers.append(ticker.strip().upper())
+        # Support comma-separated tickers for multi-symbol mode
+        for t in ticker.split(","):
+            t = t.strip().upper()
+            if t and t not in tickers:
+                tickers.append(t)
     if from_state:
         for t in _read_tickers_from_state():
             if t not in tickers:
@@ -136,13 +219,20 @@ def fetch(
         raise typer.Exit(code=1)
 
     size = max(1, min(50, size))
+    mode = "multi" if len(tickers) > 1 else "single"
     typer.echo(f"📊 Fetching sentiment for {len(tickers)} ticker(s): {', '.join(tickers)}")
 
-    results = []
+    symbols = []
     for t in tickers:
         typer.echo(f"  → {t}...", nl=False)
         result = _fetch_feed(t, size=size)
-        results.append(result)
+        # Placeholder sentiment percentages — actual classification done by P19 prompt
+        # CLI outputs raw posts; LLM does the classification
+        result["bull_pct"] = "0%"
+        result["bear_pct"] = "0%"
+        result["neutral_pct"] = "0%"
+        result["label"] = "pending"
+        symbols.append(result)
         count = result.get("post_count", 0)
         if result.get("error"):
             typer.echo(f" ❌ {result['error']}")
@@ -152,11 +242,18 @@ def fetch(
             typer.echo(f" ✅ ({count} posts)")
 
     now = dt.datetime.now()
+    group = _compute_group_aggregation(symbols)
+
     output = {
-        "fetched_at": now.isoformat(),
-        "count": len(results),
-        "total_posts": sum(r.get("post_count", 0) for r in results),
-        "results": results,
+        "request": {
+            "symbol_list": tickers,
+            "size_per_symbol": size,
+        },
+        "generated_at": now.isoformat(),
+        "mode": mode,
+        "group": group,
+        "symbols": symbols,
+        "disclaimer": "This content is based on public information and does not constitute investment advice.",
     }
 
     if output_dir:
