@@ -63,6 +63,67 @@ data/state/watchlist.md
 - 上期建议及执行进展
 - 上期持仓监控价位
 
+### Step 3.5：大盘 + 板块 ETF 扫描（三层信号基础）
+
+> 在个股价格扫描之前，先获取大盘和板块 ETF 的量化技术面数据。
+
+**3.5.1 读取配置**
+
+```
+data/state/market_anchors.md  → 提取大盘 ETF 列表（如 QQQ, SPY）
+data/state/sector_mapping.md  → 提取持仓涉及的板块 ETF 列表（如 SOXX, XLK, KWEB）
+```
+
+**3.5.2 大盘 ETF 价格 + 技术面扫描**
+
+```bash
+# 价格扫描
+ymos price-scan scan --symbols QQQ,SPY \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)" \
+  --date-tag "$(date +%Y%m%d)"
+
+# 技术分析
+ymos tech-analysis analyze --symbols QQQ,SPY \
+  --source yahoo \
+  --output-dir "data/reports/tech/$(date +%Y-%m)"
+```
+
+**3.5.3 板块 ETF 价格 + 技术面扫描**
+
+```bash
+# 价格扫描（从 sector_mapping 提取不重复的板块 ETF）
+ymos price-scan scan --symbols SOXX,XLK,KWEB \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)" \
+  --date-tag "$(date +%Y%m%d)"
+
+# 技术分析
+ymos tech-analysis analyze --symbols SOXX,XLK,KWEB \
+  --source yahoo \
+  --output-dir "data/reports/tech/$(date +%Y-%m)"
+```
+
+**3.5.4 三层信号联动判断**
+
+对每个持仓标的，综合大盘→板块→个股三个层级判断顺风/逆风：
+
+| 大盘 verdict | 板块 verdict | 标记 | 含义 |
+|:---|:---|:---|:---|
+| 偏多 | 偏多 | 🟢 顺风 | 大盘+板块共振看多，个股看多信号权重增加 |
+| 偏多 | 偏空 | 🟡 分化 | 大盘与板块矛盾，需关注板块是否有独立利空 |
+| 偏空 | 偏多 | 🟡 分化 | 大盘逆风中板块独立走强，需确认逻辑硬度 |
+| 偏空 | 偏空 | 🔴 逆风 | 大盘+板块共振看空，个股看多需极强逻辑支撑 |
+| 中性 | 任意 | ⚪ 中性 | 大盘方向不明，以板块+个股信号为主 |
+
+**3.5.5 P14 板块猎手自动触发**
+
+当板块 ETF 技术分析 verdict 为「偏多⬆」或「偏空⬇」时，自动触发 P14 板块猎手对该板块做深度分析：
+
+- **板块偏多**：触发 P14，输出该板块的龙头标的、资金反馈、逻辑复盘
+- **板块偏空**：触发 P14，输出风险点、逻辑松动证据
+- **板块中性**：跳过 P14，仅保留技术面数据在报告中
+
+P14 prompt 路径：`skills/ymos-market-insight/prompts/p14-sector-hunter.md`
+
 ### Step 4：价格扫描
 
 **只扫持仓 + Watchlist，不做全市场盲扫**
@@ -155,7 +216,12 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 
 > 详细分析流程见 `sop/analysis-and-triggers.md`
 
-综合 Step 1-4.7 所有输入，执行信号分析和分流。
+综合 Step 1-4.7 所有输入 + **Step 3.5 三层信号联动判断**，执行信号分析和分流。
+
+**三层信号联动在综合分析中的应用**：
+- 逆风标记的标的，看多信号需要更强的逻辑支撑
+- 顺风标记的标的，利空信号需要更审慎的评估
+- 分化标记的标的，需在报告中明确矛盾点
 
 ### Step 6：触发分流（AI 自主分析）
 
@@ -181,8 +247,9 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 | 文件 | 路径 | 说明 |
 |:---|:---|:---|
 | 投资雷达报告 | `data/reports/radar/YYYY-MM/` | 桥接报告（核心产出） |
-| 价格扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 价格数据 |
+| 价格扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 价格数据（个股 + 大盘/板块 ETF） |
 | 资金流扫描（Raw） | `data/reports/radar/raw/YYYY-MM/` | 资金异动数据 |
+| 大盘/板块 ETF 技术面 | `data/reports/tech/YYYY-MM/` | ETF 技术分析报告 |
 | 更新：状态机 | `data/state/` | P4 + 价格 |
 | 更新：单标的知识库 | `data/stocks/{holdings,watchlist}/名称_TICKER/` | P4 增量 |
 
@@ -200,6 +267,8 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 | 当前策略 | `data/state/preferences.md` |
 | 持仓状态机 | `data/state/holdings.md` |
 | Watchlist 状态机 | `data/state/watchlist.md` |
+| 大盘锚点 | `data/state/market_anchors.md` |
+| 板块-个股映射 | `data/state/sector_mapping.md` |
 | 市场洞察归档 | `data/reports/market-insight/YYYY-MM/` |
 | 投资雷达归档 | `data/reports/radar/YYYY-MM/` |
 | P 提示词目录 | `skills/<skill>/prompts/` 或 `skills/ymos-core/prompts/` |
@@ -221,4 +290,4 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 
 ---
 
-*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*
+*SOP 版本：2026-05-03 · YMOS V4 Skills 架构 · 新增大盘+板块三层信号联动*

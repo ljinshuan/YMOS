@@ -36,6 +36,14 @@ class Paths:
         return self.state / "memo-view.md"
 
     @property
+    def market_anchors(self) -> Path:
+        return self.state / "market_anchors.md"
+
+    @property
+    def sector_mapping(self) -> Path:
+        return self.state / "sector_mapping.md"
+
+    @property
     def stocks(self) -> Path:
         return self.data / "stocks"
 

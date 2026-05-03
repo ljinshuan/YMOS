@@ -26,7 +26,8 @@ description: |
 1. **加载用户上下文** — 读取投资偏好 + 持仓状态机 + Watchlist 状态机
 2. **加载市场洞察（7 天趋势）** — 当日洞察 + 过去 7 天趋势分析
 3. **加载上份投资雷达** — 提取连续跟踪信息
-4. **价格扫描**（只扫状态机 ticker）
+4. **大盘 + 板块 ETF 扫描**（三层信号基础）— 读取大盘锚点和板块映射 → price-scan + tech-analysis 大盘/板块 ETF → 三层信号联动判断 → P14 自动触发（板块信号显著时）
+5. **价格扫描**（只扫状态机 ticker）
    ```
    ymos price-scan scan --from-state
    ```
@@ -47,6 +48,7 @@ description: |
 - `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）
 - `data/reports/radar/raw/YYYY-MM/price_scan_YYYYMMDD.json`（价格数据）
 - `data/reports/radar/raw/YYYY-MM/capital_flow_YYYYMMDD.json`（资金流数据，可选）
+- `data/reports/tech/YYYY-MM/`（大盘+板块 ETF 技术面报告）
 - 状态机更新（P4 + 价格）
 - 个股知识库 P4 增量更新
 

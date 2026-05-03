@@ -45,6 +45,14 @@ mkdir -p "data/stocks/watchlist/名称_TICKER"
 
 > 异步 = 投资雷达报告的「调研建议」区块会捕获未建档标的，自然形成调研触发。
 
+**Step 5.5：建议板块映射**
+
+基于 ticker 的市场和行业信息，建议对应的板块 ETF：
+- 读取 `data/state/sector_mapping.md`，检查是否已有该 ticker 的映射
+- 若无映射，基于 ticker 所属行业建议板块 ETF（如 NVDA → SOXX 半导体，GOOG → XLK 科技）
+- 询问用户确认后写入 `data/state/sector_mapping.md`
+- 格式：`| TICKER | 名称 | 板块名称 | 板块 ETF | 市场 |`
+
 **Step 6：在对话中确认**
 
 ```
