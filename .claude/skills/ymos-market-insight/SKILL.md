@@ -18,6 +18,9 @@ description: |
 > 详细步骤见 sop.md
 
 1. **创建输出目录**
+2. **拉取市场数据**（API → RSS 自动回退）
+3. **获取大盘 ETF 技术面数据** — 读取 `data/state/market_anchors.md` → `ymos tech-analysis analyze --symbols <大盘ETF列表>` → 将 verdict 注入 P13 输入上下文
+4. **调用 P13 分析**（含量化技术面输入）
    ```
    mkdir -p "data/reports/market-insight/raw/YYYY-MM"
    mkdir -p "data/reports/market-insight/YYYY-MM"
@@ -38,6 +41,7 @@ description: |
 - `data/reports/market-insight/raw/YYYY-MM/financial_data_YYYYMMDD.json`（原始数据）
 - `data/reports/market-insight/raw/YYYY-MM/cio_processed_YYYYMMDD.md`（仅 RSS 路径）
 - `data/reports/market-insight/raw/YYYY-MM/finnhub_news_YYYYMMDD.json`（有 key 时）
+- `data/reports/tech/YYYY-MM/`（大盘 ETF 技术面报告）
 - `data/reports/market-insight/YYYY-MM/YYYY-MM-DD_市场洞察.md`（核心产出）
 
 ## 边界

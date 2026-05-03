@@ -21,6 +21,39 @@ def dirs():
     created = paths.ensure_dirs()
     typer.echo(f"✅ Ensured {len(created)} directories exist under {paths.data}")
 
+    # Auto-generate state machine templates if missing
+    _ensure_template(paths.market_anchors, _MARKET_ANCHORS_TEMPLATE)
+    _ensure_template(paths.sector_mapping, _SECTOR_MAPPING_TEMPLATE)
+
+
+def _ensure_template(path: Path, content: str) -> None:
+    if not path.exists():
+        path.write_text(content, encoding="utf-8")
+        typer.echo(f"✅ Created {path.name}")
+
+
+_MARKET_ANCHORS_TEMPLATE = """\
+# 大盘锚点
+
+更新时间：{date}
+
+| 市场 | 指数/ETF | Ticker | 数据源 |
+|:---|:---|:---|:---|
+| 美股 | 纳斯达克100 | QQQ | Yahoo |
+| 美股 | 标普500 | SPY | Yahoo |
+| A股 | 沪深300 | 000300.SS | Tushare/Yahoo |
+| 港股 | 盈富基金 | 2800.HK | Yahoo |
+""".format(date=__import__("datetime").date.today().isoformat())
+
+_SECTOR_MAPPING_TEMPLATE = """\
+# 板块-个股映射
+
+更新时间：{date}
+
+| Ticker | 名称 | 板块名称 | 板块 ETF | 市场 |
+|:---|:---|:---|:---|:---|
+""".format(date=__import__("datetime").date.today().isoformat())
+
 
 @app.command()
 def stock(

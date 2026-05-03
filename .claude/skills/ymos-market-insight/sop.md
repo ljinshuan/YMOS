@@ -40,6 +40,21 @@ mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 
 多源数据拉取：CIO 洞察 API → RSS 兜底，个股新闻（Finnhub + Futu），补充 RSS。
 
+### Step 2.5：获取大盘技术面数据
+
+> 在 P13 分析前，获取大盘锚点的量化技术面数据，作为新闻文字分析的补充。
+
+```bash
+# 读取大盘锚点配置
+cat data/state/market_anchors.md
+
+# 技术分析大盘 ETF（如 QQQ, SPY）
+ymos tech-analysis analyze --symbols QQQ,SPY --source yahoo \
+  --output-dir "data/reports/tech/$(date +%Y-%m)"
+```
+
+读取技术面报告，提取每个大盘 ETF 的 verdict（偏多/偏空/中性）和关键指标。
+
 ### Step 3：调用 P13 分析
 
 > ⚠️ **无论数据来自 API 还是 RSS，都必须严格按照 P13 标准模板输出。**
@@ -51,6 +66,7 @@ mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 2. **补充输入**（如存在）：`finnhub_news_YYYYMMDD.json`
    - `p15_trigger=true` 的条目 → P13 报告中标注「建议跑 P15」
 3. **补充输入**（如存在）：`supplementary_rss_YYYYMMDD.json`（用户自定义 RSS）
+4. **量化输入**（Step 2.5 产出）：大盘 ETF 技术面 verdict + 关键指标（如 "QQQ 偏多，日线均线多头排列，RSI 58"）
 
 调用：`prompts/p13-market-scanner.md`
 
@@ -65,6 +81,7 @@ mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 5. **后续观察方向**
 6. 页脚声明（信息聚合与处理，非投资建议）
 7. 每段内容末尾附来源超链接（Markdown 超链接格式，如 `[Bloomberg](url)`，不放裸链接）
+8. **市场风向 section 包含大盘 ETF 技术面量化数据**（如 "QQQ 技术面偏多⬆，日线均线多头排列，RSI 58"）
 
 **合规措辞约束**：不说"关注"说"观察"、不说"利好"说"验证/支撑"、不说"建议关注"说"后续市场焦点/变量可能在于"。
 
@@ -127,4 +144,4 @@ mkdir -p "data/reports/market-insight/$(date +%Y-%m)"
 
 ---
 
-*SOP 版本：2026-04-27 · YMOS V4 Skills 架构*
+*SOP 版本：2026-05-03 · YMOS V4 Skills 架构 · 新增大盘 ETF 技术面量化输入*
