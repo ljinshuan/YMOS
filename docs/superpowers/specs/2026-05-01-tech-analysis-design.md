@@ -31,7 +31,7 @@
 |------|------|
 | `cli/main.py` | 注册 `tech-analysis` 命令 |
 | `pyproject.toml` | 添加 pandas、pandas-ta 依赖 |
-| `skills/ymos-strategy/prompts/` | P5/P6 prompt 中增加技术面引用指引 |
+| `.claude/skills/ymos-strategy/prompts/` | P5/P6 prompt 中增加技术面引用指引 |
 
 ## 详细设计
 
@@ -163,7 +163,7 @@ ymos tech-analysis --symbols AAPL --output-dir data/reports/tech/2026-05
 
 ### 5. 策略集成
 
-在 `skills/ymos-strategy/` 的 P5（买点判断）和 P6（持仓评估）prompt 中增加引用指引：
+在 `.claude/skills/ymos-strategy/` 的 P5（买点判断）和 P6（持仓评估）prompt 中增加引用指引：
 
 > 执行前检查 `data/reports/tech/{YYYY-MM}/{TICKER}_技术面分析.md` 是否存在。若存在，将综合判断和关键信号摘要作为技术面参考输入。
 

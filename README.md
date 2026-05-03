@@ -45,7 +45,7 @@ AI 的能力已经强到可以做一些不一样的事了。
 这不是一个传统的量化系统，也不是一个仪表盘工具。YMOS 的核心不是代码，而是**投资思路的结构化表达**：
 
 - **脚本层**（`cli/`）：只做原子能力——取数据、提取信息、落盘存储。轻量、零依赖、开箱即用
-- **能力层**（`skills/`）：9 个自包含 Skill，每个 Skill 含 SOP、prompts、templates、knowledge。通过自然语言暗号触发
+- **能力层**（`.claude/skills/`）：11 个自包含 Skill，每个 Skill 含 SOP、prompts、templates、knowledge。通过自然语言暗号触发
 - **判断层**：由大模型 + P 系列提示词完成复杂决策。P1-P17 覆盖从建档到复盘的全流程，每一个 P 模块都是一个经过验证的投资思维框架
 
 ### Human in the Loop
@@ -62,7 +62,7 @@ AI 的能力已经强到可以做一些不一样的事了。
 
 ```
 ┌─────────────────────────────────────────────────┐
-│              skills/（能力层 · 9 个 Skill）       │
+│              .claude/skills/（能力层 · 11 个 Skill）       │
 │                                                   │
 │  ymos-market-insight    市场洞察（P13 分析）       │
 │  ymos-radar             投资雷达（桥接报告）       │
@@ -370,17 +370,17 @@ YMOS 开箱即用，不需要任何 API Key：
 
 | Prompt | 用途 | 路径 |
 |:---|:---|:---|
-| P2 Phase Check | 阶段判断 | `skills/ymos-core/prompts/p2-phase-check.md` |
-| P3 Event Impact | 事件冲击评估 | `skills/ymos-strategy/prompts/p3-event-impact.md` |
-| P5 FOMO Killer | 买入/加仓 FOMO 审计 | `skills/ymos-strategy/prompts/p5-fomo-killer.md` |
-| P6 Profit Keeper | 利润守门员 | `skills/ymos-strategy/prompts/p6-profit-keeper.md` |
-| P7 Portfolio Check | 组合再平衡 | `skills/ymos-strategy/prompts/p7-portfolio-check.md` |
-| P8 Macro Filter | 宏观过滤 | `skills/ymos-strategy/prompts/p8-macro-filter.md` |
-| P9 Valuation | 反向 DCF 估值 | `skills/ymos-core/prompts/p9-valuation.md` |
-| P10 Options | 期权策略（可选） | `skills/ymos-strategy/prompts/p10-options.md` |
-| P11 Autopsy | 清仓复盘（强制） | `skills/ymos-strategy/prompts/p11-autopsy.md` |
-| P12 Referee | 纪律审查（最终必过） | `skills/ymos-strategy/prompts/p12-referee.md` |
-| P17 Position Sizing | 仓位计算器 | `skills/ymos-strategy/prompts/p17-position-sizing.md` |
+| P2 Phase Check | 阶段判断 | `.claude/skills/ymos-core/prompts/p2-phase-check.md` |
+| P3 Event Impact | 事件冲击评估 | `.claude/skills/ymos-strategy/prompts/p3-event-impact.md` |
+| P5 FOMO Killer | 买入/加仓 FOMO 审计 | `.claude/skills/ymos-strategy/prompts/p5-fomo-killer.md` |
+| P6 Profit Keeper | 利润守门员 | `.claude/skills/ymos-strategy/prompts/p6-profit-keeper.md` |
+| P7 Portfolio Check | 组合再平衡 | `.claude/skills/ymos-strategy/prompts/p7-portfolio-check.md` |
+| P8 Macro Filter | 宏观过滤 | `.claude/skills/ymos-strategy/prompts/p8-macro-filter.md` |
+| P9 Valuation | 反向 DCF 估值 | `.claude/skills/ymos-core/prompts/p9-valuation.md` |
+| P10 Options | 期权策略（可选） | `.claude/skills/ymos-strategy/prompts/p10-options.md` |
+| P11 Autopsy | 清仓复盘（强制） | `.claude/skills/ymos-strategy/prompts/p11-autopsy.md` |
+| P12 Referee | 纪律审查（最终必过） | `.claude/skills/ymos-strategy/prompts/p12-referee.md` |
+| P17 Position Sizing | 仓位计算器 | `.claude/skills/ymos-strategy/prompts/p17-position-sizing.md` |
 
 **产出物**：
 - 策略报告：`data/reports/strategy/YYYY-MM/YYYY-MM-DD_TICKER_动作类型.md`（最终挪入个股文件夹）
@@ -663,7 +663,7 @@ ymos migrate                                    # 旧目录结构迁移
 
 ```
 YMOS/
-├── skills/                           # 能力层（9 个 Skill）
+├── .claude/skills/                   # 能力层（11 个 Skill）
 │   ├── ymos-core/                    # 共享基础设施
 │   │   ├── SKILL.md
 │   │   ├── prompts/                  # P2, P9（跨 Skill 共享）
@@ -721,7 +721,7 @@ YMOS 不是一个封闭产品，而是一个**开放框架**：
 
 ### 处理层：改造 P 系列提示词
 
-`skills/*/prompts/` 下的 P 系列提示词是**框架样板**——代表一种经过验证的投资决策路由，你可以根据投资风格改造：调整 P5 FOMO Killer 的评分权重、在 P1 里加入行业特定指标、改变 P12 纪律审查的红线规则、调整 P17 仓位计算器的默认参数。
+`.claude/skills/*/prompts/` 下的 P 系列提示词是**框架样板**——代表一种经过验证的投资决策路由，你可以根据投资风格改造：调整 P5 FOMO Killer 的评分权重、在 P1 里加入行业特定指标、改变 P12 纪律审查的红线规则、调整 P17 仓位计算器的默认参数。
 
 ### 路由层：增加新暗号和工作流
 

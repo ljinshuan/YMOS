@@ -1,0 +1,55 @@
+---
+name: ymos-reconcile
+description: |
+  持仓一致性校验与 Dashboard 生成。触发方式：/ymos-reconcile、「收口一下」「刷新持仓视图」
+---
+
+# ymos-reconcile：持仓收口
+
+## 触发
+- `收口一下`
+- `刷新持仓视图`
+- `跑一下持仓收口`
+
+## 前置条件
+当日至少有以下产出之一（无产出仍可运行，仅刷新视图）：
+- 市场洞察报告（`data/reports/market-insight/YYYY-MM/`）
+- 投资雷达报告（`data/reports/radar/YYYY-MM/`）
+- 策略分析报告（`data/reports/strategy/YYYY-MM/`）
+
+## 执行步骤
+> 详细步骤见 sop.md
+
+1. **读取当前状态** — 持仓/Watchlist 状态机 + 当日策略分析 + 当日投资雷达 + 各标的备忘录
+2. **Futu 真实持仓校验**（可选）
+   ```
+   ymos position fetch
+   ```
+   - OpenD 在线时：获取真实持仓 → 与状态机 ticker 列表和数量对比 → 标注差异
+   - OpenD 不可用时跳过，在报告中标注"Futu 持仓数据不可用"
+2.5. **交易记录校验**（可选）
+   ```
+   ymos trade-history fetch --days 30
+   ```
+   - OpenD 在线时：获取近期成交记录 → 与状态机操作记录（建仓/加仓/减仓/清仓）做时间线比对 → 标注未记录的操作
+   - OpenD 不可用时跳过（非阻塞）
+3. **一致性校验** — 检查策略分析写回是否正确反映在状态机中
+   - 时间戳检查 / 标的行检查 / 变更日志检查
+   - 如有遗漏：补写状态机 + 记录到缺口清单
+3. **生成持仓备忘录视图** → `data/持仓备忘录_视图.md`
+   - 今日驾驶舱 + 持仓卡片 + 缺口清单 + 动作队列
+   - 同日覆盖写入，真相源为状态机和备忘录
+4. **生成 Dashboard**（默认执行，用户可跳过）
+   - 自包含 HTML → `data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`
+   - 含：状态概览 / 每日工作流 / 战略简报 / 晨会速览 / 待办事项 / 持仓一览
+5. **输出确认**
+
+## 产出物
+- `data/持仓备忘录_视图.md`（执行看板，覆盖写入）
+- `data/dashboard/YYYY-MM/dashboard_YYYY-MM-DD.html`（可视化看板）
+- 状态机补写（如一致性校验发现遗漏）
+
+## 边界
+- 收口只做视图生成 + 一致性校验，不做新分析
+- 所有数据从已有文件读取，不产生新信息
+- Dashboard 为自包含 HTML，无外部依赖

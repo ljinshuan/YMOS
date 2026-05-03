@@ -9,10 +9,10 @@ YMOS (勇麦投资操作系统) is a natural-language-driven human-AI collaborat
 ## Architecture: Three Layers
 
 ```
-skills/ (能力层) → data/ (数据层) → cli/ (工具层)
+.claude/skills/ (能力层) → data/ (数据层) → cli/ (工具层)
 ```
 
-- **skills/** — 9 个 YMOS 能力（含 ymos-core 共享基础设施），每个 skill 自包含 SOP、prompts、knowledge。Agent 发现和执行的入口
+- **.claude/skills/** — 11 个 YMOS 能力（含 ymos-core 共享基础设施），每个 skill 自包含 SOP、prompts、knowledge。通过 `/ymos-*` 或触发词调用
 - **data/** — 运行时数据（状态机 + 个股文件夹 + 报告），.gitignore 忽略
 - **cli/** — 统一 CLI 工具（`ymos` 命令），数据抓取 + 文件操作
 
@@ -41,7 +41,7 @@ uv run ymos state validate
 ## Key Rules for Editing
 
 ### File Permissions
-- **Read-only**: P-series prompts (`skills/*/prompts/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`, `skills/ymos-diagnosis/**`
+- **Read-only**: P-series prompts (`.claude/skills/*/prompts/*.md`), `AGENT_GUIDE.md`, `总入口暗号.md`, `.env`, `.claude/skills/ymos-diagnosis/**`
 - **Skills 可修改**: SKILL.md、sop.md、routing.md 在主动丰富 skill 能力时可以修改（如新增 CLI 命令引用、新增执行步骤），但不应改变核心业务逻辑
 - **Human-in-the-Loop**: `data/state/preferences.md` — draft changes but require user confirmation before writing
 - **Writable via SOP only**: Reports in `data/reports/market-insight/`, `data/reports/radar/`, `data/reports/strategy/`, state machines, stock knowledge bases
@@ -64,19 +64,21 @@ Every state machine write must: (1) update `更新时间`, (2) update the target
 
 ## Skill Discovery
 
-9 skills in `skills/` directory:
+11 skills registered in `.claude/skills/`, callable via `/ymos-*` slash commands or trigger words:
 
-| Skill | Trigger Words | Depends On |
-|-------|--------------|------------|
-| ymos-core | (shared infrastructure, not user-facing) | — |
-| ymos-onboarding | `开始使用`、`初始化系统`、`补全信息` | — |
-| ymos-market-insight | `跑一下市场洞察`、`今天有什么新闻` | — |
-| ymos-radar | `跑一下投资雷达`、`查一下价格` | ymos-core |
-| ymos-strategy | `我想买/卖/加仓/持有怎么看 [ticker]` | ymos-core |
-| ymos-research | `调研一下 [ticker]` | ymos-core |
-| ymos-target-mgmt | `关注/建仓/移除/清仓 [ticker]` | ymos-core |
-| ymos-reconcile | `收口一下`、`刷新持仓视图` | — |
-| ymos-diagnosis | `诊断一下我的策略`、`帮我看看我的投资` | — |
+| Skill | Slash Command | Trigger Words |
+|-------|--------------|---------------|
+| ymos-core | `/ymos-core` | (shared infrastructure, not user-facing) |
+| ymos-onboarding | `/ymos-onboarding` | `开始使用`、`初始化系统`、`补全信息` |
+| ymos-market-insight | `/ymos-market-insight` | `跑一下市场洞察`、`今天有什么新闻` |
+| ymos-radar | `/ymos-radar` | `跑一下投资雷达`、`查一下价格` |
+| ymos-strategy | `/ymos-strategy` | `我想买/卖/加仓/持有怎么看 [ticker]` |
+| ymos-research | `/ymos-research` | `调研一下 [ticker]` |
+| ymos-target-mgmt | `/ymos-target-mgmt` | `关注/建仓/移除/清仓 [ticker]` |
+| ymos-reconcile | `/ymos-reconcile` | `收口一下`、`刷新持仓视图` |
+| ymos-diagnosis | `/ymos-diagnosis` | `诊断一下我的策略`、`帮我看看我的投资` |
+| ymos-screener | `/ymos-screener` | `帮我选股`、`筛选一下` |
+| ymos-sentiment | `/ymos-sentiment` | `看一下情绪`、`多空怎么样` |
 
 ## Data Layer
 
@@ -112,7 +114,7 @@ Crypto symbols (BTC, ETH, etc.) stored as bare symbols in state machines; router
 
 ## Onboarding Flow
 
-New users say "开始使用" → Agent reads `skills/ymos-onboarding/SKILL.md` → guided interview (investment preferences → holdings → watchlist → first run).
+New users say "开始使用" → Agent invokes `/ymos-onboarding` → guided interview (investment preferences → holdings → watchlist → first run).
 
 ## Agent Entry Point
 
