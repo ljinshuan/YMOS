@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 from pathlib import Path
 
 import typer
@@ -38,8 +37,6 @@ def _fetch_kline(
     ticker: str,
     kline_type,
     count: int,
-    host: str,
-    port: int,
 ) -> list[list[str]] | None:
     """Fetch kline data from Futu OpenD for a single ticker.
 
@@ -47,14 +44,14 @@ def _fetch_kline(
     """
     import futu as ft
 
-    from cli.core.futu_utils import ticker_to_futu_symbol
+    from cli.core.futu_utils import create_quote_context, ticker_to_futu_symbol
 
     symbol = ticker_to_futu_symbol(ticker)
     end_date = dt.datetime.now(dt.timezone.utc)
     start_date = end_date - dt.timedelta(days=count + 30)  # extra buffer for minute klines
 
     try:
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context()
         try:
             ret, data, page_req_key = quote_ctx.request_history_kline(
                 symbol,
@@ -129,7 +126,7 @@ def fetch_prices(
 
     import futu as ft
 
-    from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection
+    from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, create_quote_context
     from cli.core.paths import get_paths
     from cli.core.sources.news import extract_tickers_from_state_machine
     from cli.monitor.history import merge_kline_to_csv
@@ -157,10 +154,7 @@ def fetch_prices(
         raise typer.Exit(code=1)
 
     # Check OpenD connection
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-
-    if not check_opend_connection(host, port):
+    if not check_opend_connection():
         typer.echo(OPEND_STARTUP_GUIDE, err=True)
         raise typer.Exit(code=1)
 
@@ -189,14 +183,14 @@ def fetch_prices(
 
     for ticker in tickers:
         # Fetch daily kline
-        daily_rows = _fetch_kline(ticker, ft.KLType.K_DAY, count, host, port)
+        daily_rows = _fetch_kline(ticker, ft.KLType.K_DAY, count)
         if daily_rows:
             csv_path = root / "history" / f"{ticker}_daily.csv"
             added = merge_kline_to_csv(csv_path, daily_rows)
             typer.echo(f"  {ticker} daily: {len(daily_rows)} fetched, {added} new rows")
 
         # Fetch minute kline
-        minute_rows = _fetch_kline(ticker, kline_type, count, host, port)
+        minute_rows = _fetch_kline(ticker, kline_type, count)
         if minute_rows:
             csv_path = root / "history" / f"{ticker}_{kline}.csv"
             added = merge_kline_to_csv(csv_path, minute_rows)

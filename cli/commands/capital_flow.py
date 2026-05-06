@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 from pathlib import Path
 
 import typer
 
-from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, ticker_to_futu_symbol
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, create_quote_context, ticker_to_futu_symbol
 from cli.utils.env_loader import load_dotenv
 
 app = typer.Typer(help="Fetch capital flow anomaly data via Futu OpenD")
@@ -118,13 +117,11 @@ def _fetch_capital_flow(
     """Fetch capital flow anomaly data via Futu OpenD get_financial_unusual."""
     symbol = ticker_to_futu_symbol(ticker)
     market = _detect_market(ticker)
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
 
     try:
         import futu as ft
 
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context()
         try:
             ret, data = quote_ctx.get_financial_unusual(
                 symbol,
@@ -215,10 +212,8 @@ def fetch(
 
     analysis_dimensions = dimensions if dimensions else None
 
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-    if not check_opend_connection(host, port):
-        typer.echo(f"❌ 无法连接 Futu OpenD ({host}:{port})")
+    if not check_opend_connection():
+        typer.echo("❌ 无法连接 Futu OpenD")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)
 

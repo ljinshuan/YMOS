@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import datetime as dt
-import os
 
 
 # Valid analysis dimensions for get_derivative_unusual
@@ -41,12 +40,10 @@ def fetch_derivatives_anomaly(
     Returns:
         Dict with standardized output schema.
     """
-    from cli.core.futu_utils import ticker_to_futu_symbol
+    from cli.core.futu_utils import create_quote_context, ticker_to_futu_symbol
 
     symbol = ticker_to_futu_symbol(ticker)
     market = _detect_market(ticker)
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
 
     # Filter warrant dimensions for non-HK stocks
     effective_dimensions = analysis_dimensions
@@ -61,7 +58,7 @@ def fetch_derivatives_anomaly(
         return _error_result(ticker, symbol, market, "futu-api SDK not installed. Run: uv add futu-api")
 
     try:
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context()
         try:
             ret, data = quote_ctx.get_derivative_unusual(
                 symbol,

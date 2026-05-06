@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import datetime as dt
-import os
 
 
 def fetch_technical_anomaly(
@@ -23,11 +22,9 @@ def fetch_technical_anomaly(
     Returns:
         Dict with standardized output schema.
     """
-    from cli.core.futu_utils import ticker_to_futu_symbol
+    from cli.core.futu_utils import create_quote_context, ticker_to_futu_symbol
 
     symbol = ticker_to_futu_symbol(ticker)
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
 
     try:
         import futu as ft
@@ -35,7 +32,7 @@ def fetch_technical_anomaly(
         return _error_result(ticker, symbol, "futu-api SDK not installed. Run: uv add futu-api")
 
     try:
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context()
         try:
             ret, data = quote_ctx.get_technical_unusual(
                 symbol,
