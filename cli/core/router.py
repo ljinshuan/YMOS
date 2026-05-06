@@ -123,5 +123,22 @@ def route_prices(symbols: list[str], output_dir: Path, date_tag: str,
         out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         results["outputs"].append(str(out))
 
+    # Futu OpenD extended quotes (auto-detect session: pre-market, after-hours, overnight)
+    if any(not s.endswith((".SS", ".SZ")) for s in symbols):
+        from cli.core.sources.futu_quote import fetch_extended_quotes, print_extended_summary
+        futu_quotes = fetch_extended_quotes(symbols)
+        if futu_quotes:
+            results["futu_extended"] = futu_quotes
+            out = output_dir / f"price_scan_futu_extended_{date_tag}.json"
+            payload = {
+                "source": "Futu OpenD (extended)",
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
+                "count": len(futu_quotes),
+                "data": futu_quotes,
+            }
+            out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            results["outputs"].append(str(out))
+            print_extended_summary(futu_quotes)
+
     print("✅ Routing complete")
     return results

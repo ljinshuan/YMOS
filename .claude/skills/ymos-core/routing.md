@@ -27,6 +27,7 @@
 | `sell-reduce` | ymos-strategy Route D | P2 → P6 → P10 → P12 |
 | `portfolio-mgmt` | ymos-strategy Route E + reconcile | P7 / 一致性校验 |
 | `system-ops` | onboarding / target-mgmt / diagnosis | 按 SOP 执行 |
+| `monitor` | ymos-monitor | CLI 命令 + cron 调度 |
 
 **复合意图：** 多意图自动拆分为有序任务列表，按逻辑依赖排序（调研 → 策略 → 管理）。
 详见 `skills/ymos-core/prompts/intent-classifier.md`。
@@ -205,6 +206,23 @@
 **与策略分析的关系：**
 - ymos-strategy 的 P2（阶段判断）和 P9（估值）可引用技术分析指标作为辅助维度
 - 默认 `auto` 模式下，Futu 在线时优先使用富途 K 线数据（覆盖港股/A 股/美股）
+
+---
+
+## 9.5) 盯盘监控入口
+
+| 暗号 | SOP | 动作 | 写回 |
+|:---|:---|:---|:---|
+| `开始盯盘` | `skills/ymos-monitor/sop.md` | 提供 cron 配置指引 | 无（配置 cron） |
+| `停一下盯盘` | `skills/ymos-monitor/sop.md` | 提供停止 cron 命令 | 无 |
+| `查看告警` | `skills/ymos-monitor/sop.md` | 读取当日告警日志 | `data/monitor/alerts/` |
+| `监控状态` | `skills/ymos-monitor/sop.md` | 查看 history/ 文件统计 | 无（终端输出） |
+
+**盯盘与雷达的关系：**
+- 盯盘是**自动化的浅层监控**（Futu OpenD K线），雷达是**手动触发的深度分析**（三源分流 + AI 综合）
+- 盯盘不更新状态机，雷达手动触发时才更新
+- 数据流：cron → fetch-prices → history/ → naught_backtest → signals/ → check-signals → alerts/
+- CLI：`ymos monitor fetch-prices` / `ymos monitor check-signals`
 
 ---
 
