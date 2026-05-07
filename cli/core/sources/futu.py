@@ -11,8 +11,8 @@ from cli.core.futu_utils import create_quote_context, ticker_to_futu_symbol
 
 def fetch_futu_history(
     ticker: str,
-    host: str = "127.0.0.1",
-    port: int = 11111,
+    host: str = "",
+    port: int = 0,
 ) -> pd.DataFrame | None:
     """Fetch ~1 year of daily OHLCV data from Futu OpenD via request_history_kline.
 
