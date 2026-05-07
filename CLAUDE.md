@@ -100,6 +100,9 @@ All optional. Missing keys trigger automatic fallback to free sources.
 | `FINNHUB_API_KEY` | Finnhub (US stocks, Crypto) | Yahoo Finance |
 | `TUSHARE_TOKEN` | Tushare (A-shares .SS/.SZ) | Yahoo Finance |
 | `YMOS_MARKET_API_URL` / `YMOS_MARKET_API_KEY` | Market event API | RSS only |
+| `FUTU_OPEND_HOST` | Futu OpenD address (remote: auto-enable encryption) | `127.0.0.1` (local) |
+| `FUTU_OPEND_PORT` | Futu OpenD port | `11111` |
+| `FUTU_OPEND_RSA_KEY` | RSA private key file path, required for remote | Local only (no encryption) |
 
 ## Price Router Logic
 

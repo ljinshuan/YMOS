@@ -1,10 +1,11 @@
-"""Shared Futu OpenD utilities — connection check, ticker conversion, startup guide.
+"""Shared Futu OpenD utilities — connection factory, encryption, ticker conversion.
 
 Used by: capital_flow, screener, tech (futu source), position commands.
 """
 
 from __future__ import annotations
 
+import os
 import socket
 
 OPEND_STARTUP_GUIDE = """
@@ -13,17 +14,62 @@ Futu OpenD 未运行或不可连接。请按以下步骤操作：
 1. 打开富途牛牛客户端（或独立的 FutuOpenD）
 2. 确保菜单「更多 → Futu OpenD」已开启，监听端口 11111
 3. 如端口被修改，设置环境变量 FUTU_OPEND_PORT=端口号
-4. 等待 OpenD 状态变为「已连接」后重试
+4. 远程部署时，设置 FUTU_OPEND_HOST=远端IP 并配置 FUTU_OPEND_RSA_KEY
+5. 等待 OpenD 状态变为「已连接」后重试
 """
 
 
-def check_opend_connection(host: str = "127.0.0.1", port: int = 11111) -> bool:
+def _is_remote_host(host: str) -> bool:
+    return host not in ("", "127.0.0.1", "localhost")
+
+
+def _resolve_opend_addr(host: str = "", port: int = 0) -> tuple[str, int]:
+    host = host or os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
+    port = port or int(os.getenv("FUTU_OPEND_PORT", "11111"))
+    return host, port
+
+
+def _setup_encryption(host: str) -> None:
+    if not _is_remote_host(host):
+        return
+
+    import futu as ft
+
+    key_path = os.getenv("FUTU_OPEND_RSA_KEY", "").strip()
+    if not key_path:
+        print("⚠️  远程 Futu OpenD 连接未配置 FUTU_OPEND_RSA_KEY，可能连接失败")
+
+    ft.SysConfig.enable_proto_encrypt(is_encrypt=True)
+    if key_path:
+        ft.SysConfig.set_init_rsa_file(key_path)
+
+
+def check_opend_connection(host: str = "", port: int = 0) -> bool:
     """Check if Futu OpenD is reachable on the given host:port."""
+    host, port = _resolve_opend_addr(host, port)
     try:
         with socket.create_connection((host, port), timeout=3):
             return True
     except (ConnectionRefusedError, OSError, TimeoutError):
         return False
+
+
+def create_quote_context(host: str = "", port: int = 0):
+    """Create an OpenQuoteContext with auto encryption for remote hosts."""
+    import futu as ft
+
+    host, port = _resolve_opend_addr(host, port)
+    _setup_encryption(host)
+    return ft.OpenQuoteContext(host=host, port=port)
+
+
+def create_trade_context(host: str = "", port: int = 0):
+    """Create an OpenSecTradeContext with auto encryption for remote hosts."""
+    import futu as ft
+
+    host, port = _resolve_opend_addr(host, port)
+    _setup_encryption(host)
+    return ft.OpenSecTradeContext(host=host, port=port)
 
 
 def ticker_to_futu_symbol(ticker: str) -> str:

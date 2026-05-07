@@ -43,11 +43,10 @@ def fetch(
 ):
     """Fetch derivatives anomaly data from Futu OpenD."""
     load_dotenv()
-    import os
 
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-    if not check_opend_connection(host, port):
+    if not check_opend_connection():
+        from cli.core.futu_utils import _resolve_opend_addr
+        host, port = _resolve_opend_addr()
         typer.echo(f"❌ 无法连接 Futu OpenD ({host}:{port})")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)

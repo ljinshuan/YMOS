@@ -25,3 +25,6 @@ data/
 # OMC state
 .omc/
 state/
+
+.vscode/
+rsa_private_key.txt

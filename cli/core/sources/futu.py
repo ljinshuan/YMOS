@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-import os
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
-from cli.core.futu_utils import ticker_to_futu_symbol
+from cli.core.futu_utils import create_quote_context, ticker_to_futu_symbol
 
 
 def fetch_futu_history(
     ticker: str,
-    host: str = "127.0.0.1",
-    port: int = 11111,
+    host: str = "",
+    port: int = 0,
 ) -> pd.DataFrame | None:
     """Fetch ~1 year of daily OHLCV data from Futu OpenD via request_history_kline.
 
@@ -26,14 +25,12 @@ def fetch_futu_history(
         return None
 
     symbol = ticker_to_futu_symbol(ticker)
-    host = host or os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = port or int(os.getenv("FUTU_OPEND_PORT", "11111"))
 
     end_date = datetime.now(timezone.utc)
     start_date = end_date - timedelta(days=400)
 
     try:
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context(host=host, port=port)
         try:
             ret, data, page_req_key = quote_ctx.request_history_kline(
                 symbol,

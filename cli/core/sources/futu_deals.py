@@ -5,12 +5,12 @@ Used by: cli/commands/trade_history.py
 
 from __future__ import annotations
 
-from cli.core.futu_utils import futu_symbol_to_ticker, ticker_to_futu_symbol
+from cli.core.futu_utils import create_trade_context, futu_symbol_to_ticker, ticker_to_futu_symbol
 
 
 def fetch_deals(
-    host: str = "127.0.0.1",
-    port: int = 11111,
+    host: str = "",
+    port: int = 0,
     start_date: str = "",
     end_date: str = "",
     ticker: str | None = None,
@@ -41,7 +41,7 @@ def fetch_deals(
         code = ticker_to_futu_symbol(ticker)
 
     try:
-        trd_ctx = ft.OpenSecTradeContext(host=host, port=port)
+        trd_ctx = create_trade_context(host=host, port=port)
         try:
             ret, data = trd_ctx.history_deal_list_query(
                 code=code, start=start_date, end=end_date

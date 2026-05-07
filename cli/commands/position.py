@@ -8,7 +8,7 @@ from pathlib import Path
 
 import typer
 
-from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, _resolve_opend_addr
 from cli.core.sources.futu_position import fetch_positions
 from cli.utils.env_loader import load_dotenv
 
@@ -79,14 +79,13 @@ def fetch_cmd(
     """Fetch current positions from Futu OpenD."""
     load_dotenv()
 
-    host = "127.0.0.1"
-    port = 11111
-
-    if not check_opend_connection(host, port):
+    if not check_opend_connection():
+        host, port = _resolve_opend_addr()
         typer.echo(f"无法连接 Futu OpenD ({host}:{port})")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)
 
+    host, port = _resolve_opend_addr()
     typer.echo("正在从 Futu OpenD 获取持仓数据...")
     positions = fetch_positions(host=host, port=port)
 

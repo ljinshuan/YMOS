@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import os
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-from cli.core.futu_utils import check_opend_connection, ticker_to_futu_symbol
+from cli.core.futu_utils import check_opend_connection, create_quote_context, ticker_to_futu_symbol
 
 ET = ZoneInfo("America/New_York")
 
@@ -124,9 +123,6 @@ def fetch_extended_quotes(
         print("⚠️  futu-api not installed, skipping extended quotes")
         return []
 
-    host = host or os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = port or int(os.getenv("FUTU_OPEND_PORT", "11111"))
-
     if not check_opend_connection(host, port):
         print("⚠️  Futu OpenD not reachable, skipping extended quotes")
         return []
@@ -138,7 +134,7 @@ def fetch_extended_quotes(
     symbols = [ticker_to_futu_symbol(t) for t in us_tickers]
 
     try:
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context(host=host, port=port)
         try:
             ret, data = quote_ctx.get_market_snapshot(symbols)
         finally:
@@ -175,6 +171,19 @@ def _fmt_session(name: str, data: dict) -> str:
     return f"{name} {'  '.join(parts)}"
 
 
+def _fmt_regular(q: dict) -> str:
+    """Format regular session quote from top-level Futu snapshot data."""
+    price = q.get("last_price") or 0
+    prev = q.get("prev_close") or 0
+    pct = ((price - prev) / prev * 100) if prev else 0
+    parts = [f"盘中 ${price:.2f} ({pct:+.2f}%)"]
+    if q.get("high_price"):
+        parts.append(f"H ${q['high_price']:.2f}")
+    if q.get("low_price"):
+        parts.append(f"L ${q['low_price']:.2f}")
+    return "  ".join(parts)
+
+
 def print_extended_summary(quotes: list[dict], session: str | None = None) -> None:
     """Print a compact summary, auto-highlighting the current session."""
     if not quotes:
@@ -183,17 +192,14 @@ def print_extended_summary(quotes: list[dict], session: str | None = None) -> No
     cur = session or detect_us_session()
     label = session_label(cur)
 
-    # Determine which sessions to show and which to prioritize
-    # primary = current session (highlighted), secondary = others
     session_key_map = {
         "pre_market": ("pre_market", ["overnight"]),
-        "regular": (None, []),  # regular hours: Finnhub is sufficient, no need to highlight
+        "regular": (None, []),
         "after_hours": ("after_hours", ["overnight"]),
         "overnight": ("overnight", ["pre_market"]),
     }
 
     primary_key, secondary_keys = session_key_map.get(cur, (None, []))
-    show_all = cur == "regular"  # During regular hours, show all as reference
 
     print()
     print(f"📊 {label}行情 (Futu OpenD):")
@@ -202,14 +208,13 @@ def print_extended_summary(quotes: list[dict], session: str | None = None) -> No
         ticker = q["ticker"]
         parts = []
 
-        if show_all:
-            # Regular hours: show all available sessions as reference
+        if cur == "regular":
+            parts.append(_fmt_regular(q))
             for key in ["pre_market", "after_hours", "overnight"]:
                 if q.get(key):
                     parts.append(_fmt_session(session_label(key), q[key]))
             prefix = f"   ➡️ {ticker:6s}"
         else:
-            # Off-hours: primary session first and prominent
             if primary_key and q.get(primary_key):
                 pm = q[primary_key]
                 pct = pm.get("change_pct") or 0

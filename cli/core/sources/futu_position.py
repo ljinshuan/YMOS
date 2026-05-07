@@ -5,10 +5,10 @@ Used by: cli/commands/position.py
 
 from __future__ import annotations
 
-from cli.core.futu_utils import futu_symbol_to_ticker
+from cli.core.futu_utils import create_trade_context, futu_symbol_to_ticker
 
 
-def fetch_positions(host: str = "127.0.0.1", port: int = 11111) -> list[dict] | None:
+def fetch_positions(host: str = "", port: int = 0) -> list[dict] | None:
     """Fetch current stock positions from Futu OpenD.
 
     Uses OpenSecTradeContext.position_list_query() to retrieve real holdings.
@@ -24,7 +24,7 @@ def fetch_positions(host: str = "127.0.0.1", port: int = 11111) -> list[dict] | 
         return None
 
     try:
-        trd_ctx = ft.OpenSecTradeContext(host=host, port=port)
+        trd_ctx = create_trade_context(host=host, port=port)
         try:
             ret, data = trd_ctx.position_list_query()
         finally:

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import typer
 
-from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, _resolve_opend_addr
 from cli.core.sources.futu_deals import fetch_deals
 from cli.utils.env_loader import load_dotenv
 
@@ -94,13 +94,13 @@ def fetch_cmd(
     """Fetch deal history from Futu OpenD."""
     load_dotenv()
 
-    host = "127.0.0.1"
-    port = 11111
-
-    if not check_opend_connection(host, port):
+    if not check_opend_connection():
+        host, port = _resolve_opend_addr()
         typer.echo(f"无法连接 Futu OpenD ({host}:{port})")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)
+
+    host, port = _resolve_opend_addr()
 
     now = dt.datetime.now()
     end_date = now.strftime("%Y-%m-%d")

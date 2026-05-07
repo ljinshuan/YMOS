@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 from pathlib import Path
 
 import typer
 
-from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection
+from cli.core.futu_utils import OPEND_STARTUP_GUIDE, check_opend_connection, create_quote_context
 from cli.utils.env_loader import load_dotenv
 
 app = typer.Typer(help="Stock screening via Futu OpenD")
@@ -147,14 +146,11 @@ def _build_custom_filters(config_data: dict) -> list:
 
 
 def _run_screen(market: str, simple_filters: list, begin: int = 0, num: int = 20) -> dict:
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-
     try:
         import futu as ft
 
         market_code = _market_to_futu(market)
-        quote_ctx = ft.OpenQuoteContext(host=host, port=port)
+        quote_ctx = create_quote_context()
         try:
             ret, data = quote_ctx.get_stock_filter(
                 market=market_code,
@@ -246,10 +242,8 @@ def screen_cmd(
             typer.echo(f"  {key:15s} — {p['name']}: {p['desc']}")
         return
 
-    host = os.getenv("FUTU_OPEND_HOST", "127.0.0.1")
-    port = int(os.getenv("FUTU_OPEND_PORT", "11111"))
-    if not check_opend_connection(host, port):
-        typer.echo(f"❌ 无法连接 Futu OpenD ({host}:{port})")
+    if not check_opend_connection():
+        typer.echo("❌ 无法连接 Futu OpenD")
         typer.echo(OPEND_STARTUP_GUIDE)
         raise typer.Exit(code=1)
 
