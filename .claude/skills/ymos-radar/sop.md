@@ -226,7 +226,7 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 **4.8.2 获取期权链数据**
 
 ```bash
-ymos fetch-option-chain --from-state \
+ymos fetch-option-chain fetch --from-state \
   --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
 ```
 

@@ -22,6 +22,8 @@ Information flows: skills trigger workflows → data stores state → cli fetche
 
 **项目使用 uv 管理虚拟环境。** 执行 Python/CLI 命令前必须通过 `uv run` 进入正确的虚拟环境。示例：`uv run ymos ...`、`uv run python ...`。不要直接调用 `python` 或裸 `ymos`，除非已确认在 uv 虚拟环境内（`.venv`）。
 
+**.env 环境变量必须加载。** 富途 OpenD 使用远程连接（`FUTU_OPEND_HOST`/`PORT`/`RSA_KEY` 配置在 `.env` 中），不加载环境变量会回退到 `127.0.0.1` 导致连接失败。通过 `uv run ymos ...` 执行时 typer 命令内部已有 `load_dotenv()`；直接在 Python 中调用 ymos 模块时，需先 `from cli.utils.env_loader import load_dotenv; load_dotenv()`。
+
 ```bash
 # Price scan
 uv run ymos price-scan --symbols AAPL,NIO,688008.SS,0700.HK --output-dir data/reports/radar/raw --date-tag 20260426

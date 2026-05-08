@@ -42,7 +42,7 @@ description: |
 6. **综合分析** — 市场趋势回顾 + 资金异动信号 + 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
 	5.5 **期权市场情绪扫描**（可选，复用 ticker 列表，非阻塞）
 	   ```
-	   ymos fetch-option-chain --from-state --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+	   ymos fetch-option-chain fetch --from-state --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
 	   ```
 	   - 数据源：富途 OpenD `get_option_chain` + `get_market_snapshot`
 	   - 分析内容：IV 曲面、PCR 偏斜、未平仓变化、希腊值分布
