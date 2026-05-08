@@ -26,7 +26,7 @@ description: |
 
 1. **确定触发来源与目标** — 手动暗号直接分流；自动模式读取雷达报告
 2. **加载用户上下文** — 投资偏好 + 状态机
-3. **前置检查与补足** — 逐标的检查 P1/P4/P2，缺失时调用 `ymos-research` 补足
+3. **前置检查与补足** — 逐标的检查 P1/P4/P2，缺失时调用 `ymos-research` 补足。可选读取论点追踪置信度（`ymos-thesis-tracker`）、即将到来的催化剂（`ymos-catalyst-calendar`）、最新财报分析（`ymos-earnings-update`）、DCF 估值（`ymos-dcf-model`）
 4. **执行策略路由**：
 
    | 路由 | 提示词链 | 关键约束 |

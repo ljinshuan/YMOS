@@ -53,6 +53,9 @@ description: |
 7. **触发分流**（AI 自主分析）— 重大事件/财报/宏观事件触发对应 P 链
 8. **生成投资雷达报告** → `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
 9. **写回状态机** — P4 更新 + 价格更新 + 资金异动信号更新
+10. **[可选] 提示更新论点追踪** — 若检测到标的重大事件，提示是否更新论点追踪（`ymos-thesis-tracker`）
+11. **[可选] 提示添加催化剂** — 若检测到新事件，询问是否添加到催化剂日历（`ymos-catalyst-calendar`）
+12. **[可选] 提示生成财报报告** — 若检测到财报事件，询问是否生成财报分析（`ymos-earnings-update`）
 
 ## 产出物
 - `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）

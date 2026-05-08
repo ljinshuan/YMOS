@@ -12,7 +12,7 @@ YMOS (勇麦投资操作系统) is a natural-language-driven human-AI collaborat
 .claude/skills/ (能力层) → data/ (数据层) → cli/ (工具层)
 ```
 
-- **.claude/skills/** — 11 个 YMOS 能力（含 ymos-core 共享基础设施），每个 skill 自包含 SOP、prompts、knowledge。通过 `/ymos-*` 或触发词调用
+- **.claude/skills/** — 16 个 YMOS 能力（含 ymos-core 共享基础设施），每个 skill 自包含 SOP、prompts、knowledge。通过 `/ymos-*` 或触发词调用
 - **data/** — 运行时数据（状态机 + 个股文件夹 + 报告），.gitignore 忽略
 - **cli/** — 统一 CLI 工具（`ymos` 命令），数据抓取 + 文件操作
 
@@ -66,7 +66,7 @@ Every state machine write must: (1) update `更新时间`, (2) update the target
 
 ## Skill Discovery
 
-11 skills registered in `.claude/skills/`, callable via `/ymos-*` slash commands or trigger words:
+16 skills registered in `.claude/skills/`, callable via `/ymos-*` slash commands or trigger words:
 
 | Skill | Slash Command | Trigger Words |
 |-------|--------------|---------------|
@@ -81,13 +81,18 @@ Every state machine write must: (1) update `更新时间`, (2) update the target
 | ymos-diagnosis | `/ymos-diagnosis` | `诊断一下我的策略`、`帮我看看我的投资` |
 | ymos-screener | `/ymos-screener` | `帮我选股`、`筛选一下` |
 | ymos-sentiment | `/ymos-sentiment` | `看一下情绪`、`多空怎么样` |
+| ymos-thesis-tracker | `/ymos-thesis-tracker` | `追踪论点 [ticker]`、`论点怎么样`、`更新论点` |
+| ymos-excel-output | `/ymos-excel-output` | (internal, used by other skills via cli/excel_writer.py) |
+| ymos-earnings-update | `/ymos-earnings-update` | `看一下财报 [ticker]`、`财报怎么样`、`财报分析` |
+| ymos-catalyst-calendar | `/ymos-catalyst-calendar` | `催化剂日历`、`下周有什么事件`、`看一下日历` |
+| ymos-dcf-model | `/ymos-dcf-model` | `DCF 分析 [ticker]`、`估值建模`、`算一下 DCF` |
 
 ## Data Layer
 
 Runtime data lives in `data/` (ignored by git):
 - `data/state/` — Holdings/watchlist/preferences state machines
 - `data/stocks/` — Individual stock folders (holdings + watchlist)
-- `data/reports/` — Generated reports (market-insight, radar, strategy)
+- `data/reports/` — Generated reports (market-insight, radar, strategy, earnings, valuation, catalyst-calendar)
 - `data/dashboard/` — Visual dashboards
 
 Use `ymos migrate` to migrate from old directory structure.
@@ -120,6 +125,10 @@ Crypto symbols (BTC, ETH, etc.) stored as bare symbols in state machines; router
 ## Onboarding Flow
 
 New users say "开始使用" → Agent invokes `/ymos-onboarding` → guided interview (investment preferences → holdings → watchlist → first run).
+
+## Known Issues
+
+- **Team 模式不可用**: Claude Code 的 `Agent(team_name=...)` 在 tmux pane 中启动 worker 时，prompt 未传递给 `claude --print` 命令，导致 worker 无法启动（报错 `Input must be provided either through stdin or as a prompt argument when using --print`）。**替代方案：用 `Agent` 工具直接并行 spawn 多个 agent（不传 team_name），各自独立完成任务后结果直接返回主会话。**
 
 ## Agent Entry Point
 

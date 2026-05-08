@@ -47,6 +47,8 @@ description: |
 7. **执行 P9 估值分析**（仅用户直接调用时，`skills/ymos-core/prompts/p9-valuation.md`）
    - 被其他 skill 调用时跳过（P9 在策略路由中按需触发）
 8. **输出确认** — 汇报完成状态 + 待人工补充项
+9. **[可选] 初始化论点追踪** — 调研完成后询问用户是否初始化论点追踪（`ymos-thesis-tracker`）
+10. **[可选] 启动 DCF 建模** — P9 估值后可选触发 DCF 深度建模（`ymos-dcf-model`）
 
 ## 产出物
 - `data/stocks/{holdings,watchlist}/名称_TICKER/个股基础知识库.md`（P1+P4+可选P18+P2+可选P9）

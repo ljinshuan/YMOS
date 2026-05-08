@@ -1,0 +1,12 @@
+{
+  "sheets": [
+    {
+      "name": "数据",
+      "title": "{title}",
+      "headers": ["项目", "数值"],
+      "rows": [],
+      "stat_rows": [],
+      "column_widths": [30, 20]
+    }
+  ]
+}

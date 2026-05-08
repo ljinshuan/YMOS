@@ -27,6 +27,7 @@ description: |
 3. **执行筛选** — 调用 `ymos screen screen --market MARKET --preset PRESET`
 4. **展示结果** — 输出候选标的表格
 5. **衔接调研**（可选）— 用户选择感兴趣的标的 → 触发 `调研一下 [ticker]`
+6. **[可选] 导出 Excel** — 用户指定 `--output-format excel` 时，使用 `cli/excel_writer.py` 生成 Excel 文件
 
 ## 产出物
 - `data/reports/screener/YYYY-MM/screener_YYYYMMDD.json`（原始数据）
