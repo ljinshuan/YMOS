@@ -1,0 +1,53 @@
+{
+  "sheets": [
+    {
+      "name": "Assumptions",
+      "title": "DCF 假设 — {ticker}",
+      "headers": ["参数", "值", "来源"],
+      "rows": [],
+      "column_widths": [25, 15, 30]
+    },
+    {
+      "name": "Free Cash Flow",
+      "title": "自由现金流预测 — {years}年",
+      "headers": ["年份", "收入", "增长率%", "EBITDA", "EBITDA%", "D&A", "EBIT", "EBIT%", "CapEx", "DeltaNWC", "FCF"],
+      "rows": [],
+      "column_widths": [8, 15, 10, 15, 10, 12, 15, 10, 12, 10, 15]
+    },
+    {
+      "name": "WACC",
+      "title": "WACC 计算",
+      "headers": ["参数", "值", "说明"],
+      "rows": [],
+      "column_widths": [25, 15, 40]
+    },
+    {
+      "name": "Terminal Value",
+      "title": "终值计算",
+      "headers": ["方法", "参数", "值", "终值", "占比%"],
+      "rows": [],
+      "column_widths": [20, 20, 15, 15, 10]
+    },
+    {
+      "name": "Valuation",
+      "title": "估值汇总",
+      "headers": ["项目", "值"],
+      "rows": [],
+      "column_widths": [30, 20]
+    },
+    {
+      "name": "Sensitivity",
+      "title": "敏感性分析",
+      "headers": [],
+      "rows": [],
+      "column_widths": [12, 12, 12, 12, 12, 12]
+    },
+    {
+      "name": "Scenarios",
+      "title": "情景分析",
+      "headers": ["情景", "概率", "收入增长%", "利润率%", "WACC%", "每股价值", "vs 市价%"],
+      "rows": [],
+      "column_widths": [10, 10, 12, 12, 10, 15, 12]
+    }
+  ]
+}

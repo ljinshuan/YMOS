@@ -9,7 +9,7 @@ app = typer.Typer(
 )
 
 # Register command groups
-from cli.commands import price, rss, market, news, state, init, report, migrate, tech, sentiment, capital_flow, screener, position, technical_anomaly, derivatives_anomaly, trade_history, monitor
+from cli.commands import price, rss, market, news, state, init, report, migrate, tech, sentiment, capital_flow, screener, position, technical_anomaly, derivatives_anomaly, option_chain, trade_history, monitor, catalyst_calendar
 
 app.add_typer(price.app, name="price-scan")
 app.add_typer(rss.app, name="fetch-rss")
@@ -26,8 +26,10 @@ app.add_typer(screener.app, name="screen")
 app.add_typer(position.app, name="position")
 app.add_typer(technical_anomaly.app, name="fetch-technical-anomaly")
 app.add_typer(derivatives_anomaly.app, name="fetch-derivatives-anomaly")
+app.add_typer(option_chain.app, name="fetch-option-chain")
 app.add_typer(trade_history.app, name="trade-history")
 app.add_typer(monitor.app, name="monitor")
+app.add_typer(catalyst_calendar.app, name="catalyst-calendar")
 
 
 if __name__ == "__main__":

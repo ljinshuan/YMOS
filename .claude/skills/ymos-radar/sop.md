@@ -212,6 +212,35 @@ ymos fetch-derivatives-anomaly fetch --from-state \
 
 > **衍生品数据不可用时**：跳过此步骤（非阻塞），在报告中标注「衍生品数据不可用（OpenD 未连接）」。
 
+### Step 4.8：期权市场情绪扫描（可选）
+
+> ⚠️ **前置条件**：用户显式启用或设置了期权分析偏好
+> **数据源**：富途 OpenD `get_option_chain` + `get_market_snapshot` API
+
+**4.8.1 读取配置**
+
+检查用户是否启用期权分析：
+- `data/state/preferences.md` 中的 `option_analysis_enabled` 字段
+- 或 CLI 参数 `--with-options`
+
+**4.8.2 获取期权链数据**
+
+```bash
+ymos fetch-option-chain fetch --from-state \
+  --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+```
+
+**数据范围**：
+- 获取所有到期的期权合约
+- 包含：静态数据（行权价、到期日、类型）+ 动态数据（价格、IV、希腊值、未平仓）
+- 派生指标：PCR、IV 分位数、OI 变化
+
+**4.8.3 期权情绪分析**
+
+调用 `P-option-sentiment` prompt 对每个标的的期权链数据进行分析，生成情绪摘要。
+
+> **期权数据不可用时**：跳过此步骤（非阻塞），在报告中标注「期权数据不可用（OpenD 未连接）」。
+
 ### Step 5：综合分析
 
 > 详细分析流程见 `sop/analysis-and-triggers.md`

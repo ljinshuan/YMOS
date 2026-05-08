@@ -40,9 +40,22 @@ description: |
    - P20 资金异动分析：信号检测 + 强度评级 + Tier 调整建议
    - OpenD 未运行时跳过，不阻塞雷达流程
 6. **综合分析** — 市场趋势回顾 + 资金异动信号 + 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
+	5.5 **期权市场情绪扫描**（可选，复用 ticker 列表，非阻塞）
+	   ```
+	   ymos fetch-option-chain fetch --from-state --output-dir "data/reports/radar/raw/$(date +%Y-%m)"
+	   ```
+	   - 数据源：富途 OpenD `get_option_chain` + `get_market_snapshot`
+	   - 分析内容：IV 曲面、PCR 偏斜、未平仓变化、希腊值分布
+	   - 调用 `P-option-sentiment` prompt 生成情绪摘要
+	   - OpenD 未运行时跳过，不阻塞雷达流程
+	   - 前置条件：`--with-options` 标志或 `data/state/preferences.md` 中 `option_analysis_enabled=true`
+	6. **综合分析** — 市场趋势回顾 + 资金异动信号 + 期权市场情绪（可选）+ 持仓动态 + Watchlist 动态 + 机会与风险信号 + 下一步建议
 7. **触发分流**（AI 自主分析）— 重大事件/财报/宏观事件触发对应 P 链
 8. **生成投资雷达报告** → `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`
 9. **写回状态机** — P4 更新 + 价格更新 + 资金异动信号更新
+10. **[可选] 提示更新论点追踪** — 若检测到标的重大事件，提示是否更新论点追踪（`ymos-thesis-tracker`）
+11. **[可选] 提示添加催化剂** — 若检测到新事件，询问是否添加到催化剂日历（`ymos-catalyst-calendar`）
+12. **[可选] 提示生成财报报告** — 若检测到财报事件，询问是否生成财报分析（`ymos-earnings-update`）
 
 ## 产出物
 - `data/reports/radar/YYYY-MM/投资雷达_YYYY-MM-DD.md`（桥接报告，核心产出）

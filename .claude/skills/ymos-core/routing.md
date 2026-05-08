@@ -231,3 +231,89 @@
 1. 一句话结论
 2. 动作建议（优先级）
 3. 写回路径（具体文件）
+
+---
+
+## 11) 论点追踪入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `追踪论点 [ticker]` | `skills/ymos-thesis-tracker/sop.md` | 论点初始化/查看 | `data/stocks/{ticker}/投资论点追踪.md` |
+| `论点怎么样 [ticker]` | `skills/ymos-thesis-tracker/sop.md`（mini 模板） | 快速查看论点摘要 | 终端输出 |
+| `更新论点 [ticker]` | `skills/ymos-thesis-tracker/sop.md` | 记分卡 + 更新日志 + 置信度 | `data/stocks/{ticker}/投资论点追踪.md` |
+| `验证论点 [ticker]` | `skills/ymos-thesis-tracker/sop.md` | 完整性 + 反向证据检查 | 终端输出 + 追踪文件更新 |
+
+**论点追踪与现有 Skill 的关系：**
+- ymos-research：P1/P4 完成后可选初始化论点追踪
+- ymos-strategy：策略分析前读取论点置信度作为决策输入
+- ymos-radar：事件触发后提示更新论点追踪
+
+---
+
+## 12) 财报更新入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `看一下财报 [ticker]` | `skills/ymos-earnings-update/sop.md` | 数据收集 + Beat/Miss + 执行摘要 + 报告生成 | `data/reports/earnings/{ticker}/` |
+| `[ticker] 财报怎么样` | `skills/ymos-earnings-update/sop.md`（mini 模板） | 快速财报摘要 | 终端输出 |
+| `财报分析 [ticker]` | `skills/ymos-earnings-update/sop.md` | 完整财报分析（含分部/指引/估值影响） | `data/reports/earnings/{ticker}/` |
+
+**财报更新与现有 Skill 的关系：**
+- ymos-radar：检测到财报事件时提示生成财报报告
+- ymos-strategy：策略分析时引用最新财报结果
+
+---
+
+## 13) 催化剂日历入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `催化剂日历` | `skills/ymos-catalyst-calendar/sop.md` | 按日期展示未来事件 | `data/reports/catalyst-calendar/YYYY-MM/` |
+| `下周有什么事件` | `skills/ymos-catalyst-calendar/sop.md`（周报） | 每周预览生成 | `data/reports/catalyst-calendar/YYYY-MM/催化剂周报_*.md` |
+| `看一下日历 [ticker]` | `skills/ymos-catalyst-calendar/sop.md` | 按标的筛选事件 | 终端输出 |
+| `添加事件` | `skills/ymos-catalyst-calendar/sop.md` | 手动添加催化剂 | `data/reports/catalyst-calendar/YYYY-MM/events.json` |
+
+**CLI 命令：**
+```bash
+uv run ymos catalyst-calendar list --days 30
+uv run ymos catalyst-calendar add --date 2026-06-15 --description "AAPL 财报" --type Earnings --impact High --tickers AAPL
+uv run ymos catalyst-calendar fetch-earnings --tickers AAPL,MSFT,0700.HK
+uv run ymos catalyst-calendar weekly
+uv run ymos catalyst-calendar export
+```
+
+**催化剂日历与现有 Skill 的关系：**
+- ymos-radar：事件触发后询问是否添加到日历
+- ymos-strategy：策略分析前读取即将到来的催化剂（未来 7 天）
+- ymos-thesis-tracker：催化剂可关联到论点支柱
+
+---
+
+## 14) DCF 估值模型入口
+
+| 暗号 | SOP | 提示词 | 写回 |
+|:---|:---|:---|:---|
+| `DCF 分析 [ticker]` | `skills/ymos-dcf-model/sop.md` | 假设收集 → FCF → WACC → 终值 → 估值 → 敏感性 → 情景 | `data/reports/valuation/{ticker}/` |
+| `估值建模 [ticker]` | `skills/ymos-dcf-model/sop.md` | 同上 | 同上 |
+| `算一下 DCF [ticker]` | `skills/ymos-dcf-model/sop.md` | 快速 DCF 估算 | 终端输出 + 简报 |
+
+**DCF 模型与现有 Skill 的关系：**
+- ymos-research：P9 估值时可选触发 DCF 模型
+- ymos-strategy：买入/卖出分析时引用 DCF 估值
+- ymos-excel-output：使用 cli/excel_writer.py 生成 Excel 模型
+
+---
+
+## 15) Excel 输出（内部能力）
+
+> 不直接由用户触发，由其他 Skill 通过 `cli/excel_writer.py` 调用。
+
+```python
+from cli.excel_writer import write_excel, write_excel_from_template
+```
+
+**集成点：**
+- ymos-screener：筛选结果导出 Excel
+- ymos-radar：价格扫描报告导出 Excel
+- ymos-catalyst-calendar：日历导出 Excel
+- ymos-dcf-model：DCF 模型导出 Excel
